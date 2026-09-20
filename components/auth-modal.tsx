@@ -67,11 +67,11 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   useEffect(() => {
     if (!open) return;
-    const timer = window.setInterval(() => {
+    const timer = window.setTimeout(() => {
       setActiveMedia((current) => (current + 1) % mediaSlides.length);
     }, 5000);
-    return () => window.clearInterval(timer);
-  }, [open]);
+    return () => window.clearTimeout(timer);
+  }, [activeMedia, open]);
 
   useEffect(() => {
     videoRefs.current.forEach((video, index) => {
@@ -147,16 +147,18 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
           ))}
           <div className="auth-showcase__progress" aria-label={`Creative example ${activeMedia + 1} of 4`}>
             {mediaSlides.map((slide, index) => (
-              <button aria-label={`Show ${slide.title}`} className={index === activeMedia ? "is-active" : ""} key={slide.title} onClick={() => setActiveMedia(index)} type="button" />
+              <button aria-label={`Show ${slide.title}`} className={index === activeMedia ? "is-active" : ""} key={slide.title} onClick={() => setActiveMedia(index)} type="button">
+                {index === activeMedia && <span key={`${activeMedia}-progress`} />}
+              </button>
             ))}
           </div>
         </section>
 
         <section className="auth-panel">
-          <div className="auth-panel__logo"><Image src="/logo.png" alt="" width={1254} height={1254} /></div>
+          <div className="auth-panel__logo"><Image src="/BLogo.png" alt="8xMotion" width={1774} height={887} /></div>
 
           {step === "otp" ? (
-            <div className="auth-step auth-step--otp">
+            <div className="auth-step auth-view auth-step--otp" key="otp">
               <button className="auth-back" type="button" onClick={() => setStep("email")}><FiArrowLeft />Back</button>
               <span className="auth-kicker">Verify your email</span>
               <h2 id="auth-title">Enter your code</h2>
@@ -179,8 +181,8 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               <button className="auth-primary" type="button" disabled={otp.some((digit) => !digit)}>Verify email</button>
               <button className="auth-resend" type="button">Resend code</button>
             </div>
-          ) : (
-            <div className="auth-step">
+          ) : step === "choices" ? (
+            <div className="auth-step auth-view" key={`${mode}-choices`}>
               <div className="auth-toggle" aria-label="Authentication mode">
                 <button className={mode === "login" ? "is-active" : ""} onClick={() => changeMode("login")} type="button">Log in</button>
                 <button className={mode === "signup" ? "is-active" : ""} onClick={() => changeMode("signup")} type="button">Sign up</button>
@@ -197,32 +199,36 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
               <div className="auth-divider"><span>or</span></div>
 
-              {step === "choices" && mode === "login" ? (
-                <button className="auth-email-choice" type="button" onClick={() => setStep("email")}>
-                  <FiMail aria-hidden="true" />Continue with email
-                </button>
-              ) : (
-                <form className="auth-form" onSubmit={submitEmail}>
-                  {mode === "signup" && (
-                    <div className="auth-form__row">
-                      <label><span>First name</span><input name="firstName" autoComplete="given-name" required /></label>
-                      <label><span>Last name</span><input name="lastName" autoComplete="family-name" required /></label>
-                    </div>
-                  )}
-                  <label><span>Email</span><input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
-                  <label>
-                    <span>Password</span>
-                    <div className="auth-password">
-                      <input name="password" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} required />
-                      <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <FiEyeOff /> : <FiEye />}</button>
-                    </div>
-                  </label>
-                  {mode === "signup" && <label><span>Confirm password</span><input name="confirmPassword" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} required /></label>}
-                  <button className="auth-primary" type="submit">{mode === "login" ? "Log in" : "Create account"}</button>
-                </form>
-              )}
+              <button className="auth-email-choice" type="button" onClick={() => setStep("email")}>
+                <FiMail aria-hidden="true" />{mode === "login" ? "Continue with email" : "Sign up with email"}
+              </button>
 
               <p className="auth-terms">By continuing, you agree to our Terms and Privacy Policy.</p>
+            </div>
+          ) : (
+            <div className="auth-step auth-view auth-step--email" key={`${mode}-email`}>
+              <button className="auth-back" type="button" onClick={() => setStep("choices")}><FiArrowLeft />Back</button>
+              <span className="auth-kicker">{mode === "login" ? "Continue with email" : "Create your account"}</span>
+              <h2 id="auth-title">{mode === "login" ? "Log in with email" : "Tell us about you"}</h2>
+              <p>{mode === "login" ? "Enter your email and password to continue." : "Add your details, then verify your email with a six-digit code."}</p>
+              <form className="auth-form" onSubmit={submitEmail}>
+                {mode === "signup" && (
+                  <div className="auth-form__row">
+                    <label><span>First name</span><input name="firstName" autoComplete="given-name" required /></label>
+                    <label><span>Last name</span><input name="lastName" autoComplete="family-name" required /></label>
+                  </div>
+                )}
+                <label><span>Email</span><input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+                <label>
+                  <span>Password</span>
+                  <div className="auth-password">
+                    <input name="password" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} required />
+                    <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <FiEyeOff /> : <FiEye />}</button>
+                  </div>
+                </label>
+                {mode === "signup" && <label><span>Confirm password</span><input name="confirmPassword" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} required /></label>}
+                <button className="auth-primary" type="submit">{mode === "login" ? "Log in" : "Create account"}</button>
+              </form>
             </div>
           )}
         </section>

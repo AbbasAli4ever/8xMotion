@@ -1040,6 +1040,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .auth-showcase__progress button {
+  position: relative;
+  overflow: hidden;
   height: 4px;
   padding: 0;
   border: 0;
@@ -1048,30 +1050,49 @@ button, a { -webkit-tap-highlight-color: transparent; }
   cursor: pointer;
 }
 
-.auth-showcase__progress button.is-active { background: var(--accent-gradient); }
+.auth-showcase__progress button span {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--accent-gradient);
+  transform: scaleX(0);
+  transform-origin: left center;
+  animation: auth-media-progress 5s linear forwards;
+}
+
+@keyframes auth-media-progress {
+  to { transform: scaleX(1); }
+}
 
 .auth-panel {
+  position: relative;
   overflow-y: auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: clamp(2rem, 4vw, 4rem);
+  padding: clamp(5.5rem, 7vw, 7rem) clamp(2rem, 4vw, 4rem) clamp(2rem, 4vw, 4rem);
 }
 
 .auth-panel__logo {
   position: absolute;
-  top: 1.5rem;
-  left: calc(54% + 1.5rem);
+  top: 1rem;
+  left: 50%;
   overflow: hidden;
-  width: 3rem;
-  height: 3rem;
-  border-radius: 0.85rem;
-  background: var(--accent-gradient);
+  width: 190px;
+  height: 76px;
+  transform: translateX(-50%);
 }
 
-.auth-panel__logo img { width: 100%; height: 100%; object-fit: cover; }
+.auth-panel__logo img { width: 100%; height: 100%; object-fit: contain; }
 
 .auth-step { width: min(450px, 100%); color: #fff; }
+
+.auth-view { animation: auth-view-enter 480ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes auth-view-enter {
+  from { opacity: 0; transform: translateX(48px); }
+  to { opacity: 1; transform: translateX(0); }
+}
 
 .auth-step h2 {
   margin: 0;
@@ -1181,7 +1202,15 @@ button, a { -webkit-tap-highlight-color: transparent; }
   cursor: pointer;
 }
 
-.auth-back { display: inline-flex; align-items: center; gap: 0.4rem; margin-bottom: 2.5rem; padding: 0; }
+.auth-back {
+  position: absolute;
+  top: 1.65rem;
+  left: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0;
+}
 .auth-resend { display: block; margin: 1rem auto 0; color: var(--lime); font-size: 0.8rem; }
 
 .otp-fields { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.55rem; margin: 2rem 0 1.25rem; }
@@ -1190,15 +1219,16 @@ button, a { -webkit-tap-highlight-color: transparent; }
 @media (max-width: 900px) {
   .auth-modal { width: min(620px, 96vw); grid-template-columns: 1fr; }
   .auth-showcase { display: none; }
-  .auth-panel__logo { left: 1.5rem; }
+  .auth-panel__logo { left: 50%; }
 }
 
 @media (max-width: 560px) {
   .auth-overlay { padding: 0; }
   .auth-modal { width: 100%; height: 100svh; padding: 0; border: 0; border-radius: 0; grid-template-columns: 1fr; }
-  .auth-panel { padding: 5.5rem 1.25rem 2rem; }
+  .auth-panel { padding: 6.25rem 1.25rem 2rem; }
   .auth-modal__close { top: 1rem; right: 1rem; }
-  .auth-panel__logo { top: 1rem; left: 1rem; }
+  .auth-panel__logo { top: 0.5rem; left: 50%; width: 160px; height: 72px; }
+  .auth-back { top: 1.45rem; left: 1.1rem; }
   .auth-form__row { grid-template-columns: 1fr; }
   .otp-fields { gap: 0.35rem; }
   .otp-fields input { height: 52px; }
@@ -1206,7 +1236,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   .auth-modal,
-  .auth-showcase__slide { transition: none !important; transform: none !important; }
+  .auth-showcase__slide,
+  .auth-view { transition: none !important; animation: none !important; transform: none !important; }
+  .auth-showcase__progress button span { animation: none; transform: scaleX(1); }
 }
 
 @media (prefers-reduced-motion: reduce) {
