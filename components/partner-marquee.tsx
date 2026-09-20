@@ -71,7 +71,7 @@ export function PartnerMarquee() {
           });
         const leave = () =>
           gsap.to(logo, {
-            opacity: 0.4,
+            opacity: 0.58,
             scale: 1,
             filter: "brightness(0.58) saturate(0.72)",
             duration: reduceMotion ? 0 : 0.28,

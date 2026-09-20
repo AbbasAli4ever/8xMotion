@@ -708,7 +708,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   width: clamp(6.25rem, 8vw, 8rem);
   height: clamp(1.8rem, 2.7vw, 2.65rem);
   flex: 0 0 clamp(6.25rem, 8vw, 8rem);
-  opacity: 0.4;
+  opacity: 0.58;
   filter: brightness(0.58) saturate(0.72);
   outline: none;
   transform-origin: center;
