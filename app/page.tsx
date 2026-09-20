@@ -1,5 +1,6 @@
 import { Hero } from "@/components/hero";
 import { Navbar } from "@/components/navbar";
+import { PartnerMarquee } from "@/components/partner-marquee";
 import { PhoneShowcase } from "@/components/phone-showcase";
 
 export default function Home() {
@@ -8,6 +9,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <PhoneShowcase />
+      <PartnerMarquee />
     </main>
   );
 }
