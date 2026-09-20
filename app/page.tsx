@@ -8,8 +8,8 @@ export default function Home() {
     <main>
       <Navbar />
       <Hero />
-      <PhoneShowcase />
       <PartnerMarquee />
+      <PhoneShowcase />
     </main>
   );
 }

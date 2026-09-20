@@ -65,6 +65,7 @@ export function PartnerMarquee() {
           gsap.to(logo, {
             opacity: 1,
             scale: 1.06,
+            filter: "brightness(1.12) saturate(1.08)",
             duration: reduceMotion ? 0 : 0.24,
             ease: "power2.out",
           });
@@ -72,6 +73,7 @@ export function PartnerMarquee() {
           gsap.to(logo, {
             opacity: 0.4,
             scale: 1,
+            filter: "brightness(0.58) saturate(0.72)",
             duration: reduceMotion ? 0 : 0.28,
             ease: "power2.out",
           });

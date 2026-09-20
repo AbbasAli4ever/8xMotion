@@ -617,7 +617,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .partners-section {
   position: relative;
   overflow: hidden;
-  padding: clamp(3.5rem, 7vw, 6rem) 0 clamp(4rem, 8vw, 7rem);
+  padding: clamp(2.75rem, 5vw, 4.5rem) 0 clamp(3rem, 5vw, 4.75rem);
   border-top: 1px solid rgba(255, 255, 255, 0.06);
   background: radial-gradient(circle at 50% 10%, rgba(210, 254, 24, 0.045), transparent 34%), #000;
 }
@@ -625,7 +625,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .partners-heading {
   position: relative;
   z-index: 2;
-  margin: 0 auto clamp(2.25rem, 4vw, 3.75rem);
+  margin: 0 auto clamp(1.75rem, 3vw, 2.75rem);
   padding: 0 1.5rem;
   text-align: center;
   will-change: transform, opacity, filter;
@@ -634,7 +634,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .partners-heading > span {
   display: block;
   margin-bottom: 0.65rem;
-  color: rgba(255, 255, 255, 0.42);
+  color: var(--lime);
   font-size: 0.72rem;
   font-weight: 700;
   letter-spacing: 0.2em;
@@ -644,17 +644,17 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .partners-heading h2 {
   margin: 0;
   color: #fff;
-  font-family: var(--font-heading), sans-serif;
-  font-size: clamp(2rem, 4vw, 4rem);
-  font-weight: 650;
-  letter-spacing: -0.045em;
-  line-height: 0.95;
+  font-family: var(--font-bricolage), sans-serif;
+  font-size: clamp(1.9rem, 3.2vw, 3.4rem);
+  font-weight: 760;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
   text-transform: uppercase;
 }
 
 .partners-heading em {
   color: transparent;
-  background: linear-gradient(105deg, var(--accent-primary), var(--accent-secondary));
+  background: var(--accent-gradient);
   background-clip: text;
   font-style: normal;
   -webkit-background-clip: text;
@@ -663,8 +663,9 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .partners-viewport {
   position: relative;
   overflow: hidden;
-  width: 100%;
-  padding: 1.25rem 0;
+  width: min(1120px, calc(100% - 3rem));
+  margin: 0 auto;
+  padding: 0.85rem 0;
   mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
   will-change: transform, opacity, filter;
@@ -697,41 +698,42 @@ button, a { -webkit-tap-highlight-color: transparent; }
   display: flex;
   align-items: center;
   width: max-content;
-  gap: clamp(3rem, 6vw, 6.5rem);
-  padding-right: clamp(3rem, 6vw, 6.5rem);
+  gap: clamp(1.5rem, 3vw, 2.75rem);
+  padding-right: clamp(1.5rem, 3vw, 2.75rem);
   will-change: transform;
 }
 
 .partner-logo {
   position: relative;
-  width: clamp(8.5rem, 12vw, 12rem);
-  height: clamp(2.25rem, 4vw, 3.75rem);
-  flex: 0 0 clamp(8.5rem, 12vw, 12rem);
+  width: clamp(6.25rem, 8vw, 8rem);
+  height: clamp(1.8rem, 2.7vw, 2.65rem);
+  flex: 0 0 clamp(6.25rem, 8vw, 8rem);
   opacity: 0.4;
-  filter: grayscale(1) brightness(0) invert(1);
+  filter: brightness(0.58) saturate(0.72);
   outline: none;
   transform-origin: center;
 }
 
 .partner-logo--compact {
-  width: clamp(4rem, 6vw, 5.5rem);
-  flex-basis: clamp(4rem, 6vw, 5.5rem);
+  width: clamp(2.8rem, 4vw, 3.75rem);
+  flex-basis: clamp(2.8rem, 4vw, 3.75rem);
 }
 
 .partner-logo img { object-fit: contain; }
 
 .partner-logo:focus-visible {
   border-radius: 0.35rem;
-  outline: 2px solid var(--accent-primary);
+  outline: 2px solid var(--lime);
   outline-offset: 0.65rem;
 }
 
 @media (max-width: 700px) {
-  .partners-section { padding: 3.25rem 0 4.5rem; }
-  .partners-heading { margin-bottom: 2rem; }
-  .partners-heading h2 { font-size: clamp(1.85rem, 10vw, 2.75rem); }
-  .partners-track { gap: 3rem; padding-right: 3rem; }
+  .partners-section { padding: 2.75rem 0 3.5rem; }
+  .partners-heading { margin-bottom: 1.6rem; }
+  .partners-heading h2 { font-size: clamp(1.8rem, 9vw, 2.5rem); }
+  .partners-track { gap: 1.5rem; padding-right: 1.5rem; }
   .partners-viewport {
+    width: calc(100% - 1.5rem);
     mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
   }
