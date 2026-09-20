@@ -154,6 +154,8 @@ button, a { -webkit-tap-highlight-color: transparent; }
 }
 
 .gradient-button__content {
+  position: relative;
+  overflow: hidden;
   display: inline-flex;
   min-height: 43px;
   align-items: center;
@@ -165,12 +167,28 @@ button, a { -webkit-tap-highlight-color: transparent; }
   color: white;
   font-size: 13px;
   font-weight: 700;
-  transition: color 180ms ease, background 180ms ease;
 }
 
-.gradient-button:hover .gradient-button__content {
-  background: rgba(20, 22, 18, 0.96);
-  color: var(--lime);
+.gradient-button__fill {
+  position: absolute;
+  z-index: 0;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--accent-gradient);
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+}
+
+.gradient-button__label {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: white;
+  will-change: color;
 }
 
 .gradient-button:focus-visible,
@@ -366,7 +384,22 @@ button, a { -webkit-tap-highlight-color: transparent; }
   }
 
   .mobile-menu a:hover { background: rgba(255, 255, 255, 0.06); }
-  .mobile-menu .mobile-menu__cta { margin-top: 5px; background: var(--accent-gradient); color: #080808; font-weight: 750; }
+  .mobile-menu .mobile-menu__cta {
+    min-height: 0;
+    margin-top: 5px;
+    padding: 1px;
+    background: rgba(255, 255, 255, 0.18);
+    font-weight: 750;
+  }
+
+  .mobile-menu .mobile-menu__cta:hover { background: rgba(255, 255, 255, 0.18); }
+
+  .mobile-menu__cta .gradient-button__content {
+    width: 100%;
+    min-height: 46px;
+    justify-content: space-between;
+    padding: 0 14px;
+  }
 }
 
 @media (max-width: 640px) {

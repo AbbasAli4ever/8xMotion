@@ -23,6 +23,8 @@ export function HoverBorderGradient({
   onClick,
 }: HoverBorderGradientProps) {
   const borderRef = useRef<HTMLSpanElement>(null);
+  const fillRef = useRef<HTMLSpanElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
 
   useLayoutEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -38,10 +40,30 @@ export function HoverBorderGradient({
     };
   }, []);
 
+  const setHoverState = (active: boolean) => {
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    gsap.killTweensOf([fillRef.current, labelRef.current]);
+    gsap.to(fillRef.current, {
+      scaleX: active ? 1 : 0,
+      duration: reduceMotion ? 0 : active ? 0.48 : 0.34,
+      ease: active ? "power3.out" : "power2.inOut",
+    });
+    gsap.to(labelRef.current, {
+      color: active ? "#050505" : "#ffffff",
+      duration: reduceMotion ? 0 : 0.22,
+      ease: "power2.out",
+    });
+  };
+
   const content = (
     <>
       <span ref={borderRef} className="gradient-button__border" aria-hidden="true" />
-      <span className={`gradient-button__content ${className}`}>{children}</span>
+      <span className={`gradient-button__content ${className}`}>
+        <span ref={fillRef} className="gradient-button__fill" aria-hidden="true" />
+        <span ref={labelRef} className="gradient-button__label">
+          {children}
+        </span>
+      </span>
     </>
   );
 
@@ -52,6 +74,10 @@ export function HoverBorderGradient({
         className={`gradient-button ${containerClassName}`}
         aria-label={ariaLabel}
         onClick={onClick}
+        onPointerEnter={() => setHoverState(true)}
+        onPointerLeave={() => setHoverState(false)}
+        onFocus={() => setHoverState(true)}
+        onBlur={() => setHoverState(false)}
       >
         {content}
       </button>
@@ -64,6 +90,10 @@ export function HoverBorderGradient({
       className={`gradient-button ${containerClassName}`}
       aria-label={ariaLabel}
       onClick={onClick}
+      onPointerEnter={() => setHoverState(true)}
+      onPointerLeave={() => setHoverState(false)}
+      onFocus={() => setHoverState(true)}
+      onBlur={() => setHoverState(false)}
     >
       {content}
     </a>

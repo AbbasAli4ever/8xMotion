@@ -70,9 +70,14 @@ export function Navbar() {
             {link.dropdown && <FiChevronDown aria-hidden="true" />}
           </a>
         ))}
-        <a href="#" className="mobile-menu__cta" onClick={() => setMenuOpen(false)}>
-          Start Creating <FiArrowUpRight aria-hidden="true" />
-        </a>
+        <HoverBorderGradient
+          containerClassName="mobile-menu__cta"
+          onClick={() => setMenuOpen(false)}
+          ariaLabel="Start creating"
+        >
+          <span>Start Creating</span>
+          <FiArrowUpRight aria-hidden="true" />
+        </HoverBorderGradient>
       </div>
     </header>
   );
