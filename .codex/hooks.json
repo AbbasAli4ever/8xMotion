@@ -1,0 +1,29 @@
+{
+  "description": "Capture user prompts and final Codex responses for the 8x assignment.",
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/capture_turn.py\"",
+            "timeout": 10,
+            "statusMessage": "Capturing assignment prompt"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/.codex/hooks/capture_turn.py\"",
+            "timeout": 10,
+            "statusMessage": "Capturing assignment response"
+          }
+        ]
+      }
+    ]
+  }
+}
