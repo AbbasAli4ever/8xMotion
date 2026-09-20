@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { FiArrowUpRight, FiChevronDown, FiMenu, FiX } from "react-icons/fi";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { AuthModal } from "@/components/auth-modal";
 
 const links = [
   { label: "Product", dropdown: true },
@@ -14,6 +15,7 @@ const links = [
 
 export function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [authOpen, setAuthOpen] = useState(false);
 
   useEffect(() => {
     const closeOnEscape = (event: KeyboardEvent) => {
@@ -40,7 +42,7 @@ export function Navbar() {
         </div>
 
         <div className="navbar__action">
-          <HoverBorderGradient ariaLabel="Start creating">
+          <HoverBorderGradient as="button" ariaLabel="Start creating" onClick={() => setAuthOpen(true)}>
             <span>Start Creating</span>
             <FiArrowUpRight aria-hidden="true" />
           </HoverBorderGradient>
@@ -71,14 +73,16 @@ export function Navbar() {
           </a>
         ))}
         <HoverBorderGradient
+          as="button"
           containerClassName="mobile-menu__cta"
-          onClick={() => setMenuOpen(false)}
+          onClick={() => { setMenuOpen(false); setAuthOpen(true); }}
           ariaLabel="Start creating"
         >
           <span>Start Creating</span>
           <FiArrowUpRight aria-hidden="true" />
         </HoverBorderGradient>
       </div>
+      <AuthModal open={authOpen} onClose={() => setAuthOpen(false)} />
     </header>
   );
 }

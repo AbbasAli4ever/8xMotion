@@ -1,0 +1,232 @@
+"use client";
+
+import Image from "next/image";
+import { FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { FiArrowLeft, FiEye, FiEyeOff, FiMail, FiX } from "react-icons/fi";
+import gsap from "gsap";
+
+type AuthMode = "login" | "signup";
+type AuthStep = "choices" | "email" | "otp";
+
+const mediaSlides = [
+  {
+    type: "video" as const,
+    src: "/Circular_Slider/Woman_walking_through_architectu…_1080p_20260921005552.mp4",
+    title: "Worlds with atmosphere",
+    caption: "Shape cinematic spaces from a single idea.",
+  },
+  {
+    type: "image" as const,
+    src: "/Female_model_posing_in_architecture_20260921034158.jpeg",
+    title: "Characters with presence",
+    caption: "Create expressive editorial visuals in seconds.",
+  },
+  {
+    type: "video" as const,
+    src: "/SliderVideos/Male_boxer_training_heavy_bag_20260921033604.mp4",
+    title: "Motion with impact",
+    caption: "Turn energy and movement into memorable stories.",
+  },
+  {
+    type: "image" as const,
+    src: "/Perfume_bottle_on_stone_20260921034416.jpeg",
+    title: "Products made cinematic",
+    caption: "Build premium campaign imagery without limits.",
+  },
+];
+
+type AuthModalProps = {
+  open: boolean;
+  onClose: () => void;
+};
+
+export function AuthModal({ open, onClose }: AuthModalProps) {
+  const modalRef = useRef<HTMLDivElement>(null);
+  const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
+  const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const [mode, setMode] = useState<AuthMode>("signup");
+  const [step, setStep] = useState<AuthStep>("choices");
+  const [activeMedia, setActiveMedia] = useState(0);
+  const [showPassword, setShowPassword] = useState(false);
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+
+  useEffect(() => {
+    if (!open) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const closeOnEscape = (event: globalThis.KeyboardEvent) => {
+      if (event.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [open, onClose]);
+
+  useEffect(() => {
+    if (!open) return;
+    const timer = window.setInterval(() => {
+      setActiveMedia((current) => (current + 1) % mediaSlides.length);
+    }, 5000);
+    return () => window.clearInterval(timer);
+  }, [open]);
+
+  useEffect(() => {
+    videoRefs.current.forEach((video, index) => {
+      if (!video) return;
+      if (open && index === activeMedia) {
+        video.currentTime = 0;
+        void video.play().catch(() => undefined);
+      } else {
+        video.pause();
+      }
+    });
+  }, [activeMedia, open]);
+
+  useLayoutEffect(() => {
+    if (!open || !modalRef.current) return;
+    const context = gsap.context(() => {
+      gsap.fromTo(
+        modalRef.current,
+        { y: 32, scale: 0.975, autoAlpha: 0 },
+        { y: 0, scale: 1, autoAlpha: 1, duration: 0.48, ease: "power3.out" },
+      );
+    }, modalRef);
+    return () => context.revert();
+  }, [open]);
+
+  if (!open) return null;
+
+  const changeMode = (nextMode: AuthMode) => {
+    setMode(nextMode);
+    setStep("choices");
+    setOtp(["", "", "", "", "", ""]);
+  };
+
+  const submitEmail = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (mode === "signup") setStep("otp");
+  };
+
+  const updateOtp = (index: number, value: string) => {
+    const digit = value.replace(/\D/g, "").slice(-1);
+    setOtp((current) => current.map((item, itemIndex) => (itemIndex === index ? digit : item)));
+    if (digit && index < otp.length - 1) otpRefs.current[index + 1]?.focus();
+  };
+
+  const handleOtpKey = (event: KeyboardEvent<HTMLInputElement>, index: number) => {
+    if (event.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus();
+  };
+
+  return (
+    <div className="auth-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}>
+      <div ref={modalRef} className="auth-modal" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+        <button className="auth-modal__close" type="button" onClick={onClose} aria-label="Close authentication modal">
+          <FiX aria-hidden="true" />
+        </button>
+
+        <section className="auth-showcase" aria-label="Creative examples">
+          {mediaSlides.map((slide, index) => (
+            <div className={`auth-showcase__slide${index === activeMedia ? " is-active" : ""}`} key={slide.src}>
+              {slide.type === "video" ? (
+                <video ref={(node) => { videoRefs.current[index] = node; }} muted playsInline loop preload="metadata">
+                  <source src={slide.src} type="video/mp4" />
+                </video>
+              ) : (
+                <Image src={slide.src} alt="" fill sizes="(max-width: 820px) 100vw, 48vw" />
+              )}
+              <div className="auth-showcase__shade" />
+              <div className="auth-showcase__copy">
+                <span>Made with 8xMotion</span>
+                <h2>{slide.title}</h2>
+                <p>{slide.caption}</p>
+              </div>
+            </div>
+          ))}
+          <div className="auth-showcase__progress" aria-label={`Creative example ${activeMedia + 1} of 4`}>
+            {mediaSlides.map((slide, index) => (
+              <button aria-label={`Show ${slide.title}`} className={index === activeMedia ? "is-active" : ""} key={slide.title} onClick={() => setActiveMedia(index)} type="button" />
+            ))}
+          </div>
+        </section>
+
+        <section className="auth-panel">
+          <div className="auth-panel__logo"><Image src="/logo.png" alt="" width={1254} height={1254} /></div>
+
+          {step === "otp" ? (
+            <div className="auth-step auth-step--otp">
+              <button className="auth-back" type="button" onClick={() => setStep("email")}><FiArrowLeft />Back</button>
+              <span className="auth-kicker">Verify your email</span>
+              <h2 id="auth-title">Enter your code</h2>
+              <p>We sent a six-digit verification code to <strong>{email || "your email"}</strong>.</p>
+              <div className="otp-fields">
+                {otp.map((digit, index) => (
+                  <input
+                    aria-label={`OTP digit ${index + 1}`}
+                    autoComplete={index === 0 ? "one-time-code" : "off"}
+                    inputMode="numeric"
+                    key={index}
+                    maxLength={1}
+                    onChange={(event) => updateOtp(index, event.target.value)}
+                    onKeyDown={(event) => handleOtpKey(event, index)}
+                    ref={(node) => { otpRefs.current[index] = node; }}
+                    value={digit}
+                  />
+                ))}
+              </div>
+              <button className="auth-primary" type="button" disabled={otp.some((digit) => !digit)}>Verify email</button>
+              <button className="auth-resend" type="button">Resend code</button>
+            </div>
+          ) : (
+            <div className="auth-step">
+              <div className="auth-toggle" aria-label="Authentication mode">
+                <button className={mode === "login" ? "is-active" : ""} onClick={() => changeMode("login")} type="button">Log in</button>
+                <button className={mode === "signup" ? "is-active" : ""} onClick={() => changeMode("signup")} type="button">Sign up</button>
+              </div>
+
+              <span className="auth-kicker">Your creative workspace</span>
+              <h2 id="auth-title">{mode === "login" ? "Welcome back" : "Create without limits"}</h2>
+              <p>{mode === "login" ? "Continue where your ideas left off." : "Join 8xMotion and bring your next visual story to life."}</p>
+
+              <button className="auth-google" type="button">
+                <Image src="/google.svg" alt="" width={22} height={22} />
+                {mode === "login" ? "Continue with Google" : "Sign up with Google"}
+              </button>
+
+              <div className="auth-divider"><span>or</span></div>
+
+              {step === "choices" && mode === "login" ? (
+                <button className="auth-email-choice" type="button" onClick={() => setStep("email")}>
+                  <FiMail aria-hidden="true" />Continue with email
+                </button>
+              ) : (
+                <form className="auth-form" onSubmit={submitEmail}>
+                  {mode === "signup" && (
+                    <div className="auth-form__row">
+                      <label><span>First name</span><input name="firstName" autoComplete="given-name" required /></label>
+                      <label><span>Last name</span><input name="lastName" autoComplete="family-name" required /></label>
+                    </div>
+                  )}
+                  <label><span>Email</span><input name="email" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} required /></label>
+                  <label>
+                    <span>Password</span>
+                    <div className="auth-password">
+                      <input name="password" type={showPassword ? "text" : "password"} autoComplete={mode === "login" ? "current-password" : "new-password"} minLength={8} required />
+                      <button type="button" onClick={() => setShowPassword((visible) => !visible)} aria-label={showPassword ? "Hide password" : "Show password"}>{showPassword ? <FiEyeOff /> : <FiEye />}</button>
+                    </div>
+                  </label>
+                  {mode === "signup" && <label><span>Confirm password</span><input name="confirmPassword" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} required /></label>}
+                  <button className="auth-primary" type="submit">{mode === "login" ? "Log in" : "Create account"}</button>
+                </form>
+              )}
+
+              <p className="auth-terms">By continuing, you agree to our Terms and Privacy Policy.</p>
+            </div>
+          )}
+        </section>
+      </div>
+    </div>
+  );
+}
