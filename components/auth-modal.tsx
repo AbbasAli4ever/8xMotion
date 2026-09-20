@@ -156,10 +156,19 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
         <section className="auth-panel">
           <div className="auth-panel__logo"><Image src="/BLogo.png" alt="8xMotion" width={1774} height={887} /></div>
+          {step !== "choices" && (
+            <button
+              className="auth-back"
+              type="button"
+              onClick={() => setStep(step === "otp" ? "email" : "choices")}
+              aria-label="Go back"
+            >
+              <FiArrowLeft aria-hidden="true" />
+            </button>
+          )}
 
           {step === "otp" ? (
             <div className="auth-step auth-view auth-step--otp" key="otp">
-              <button className="auth-back" type="button" onClick={() => setStep("email")}><FiArrowLeft />Back</button>
               <span className="auth-kicker">Verify your email</span>
               <h2 id="auth-title">Enter your code</h2>
               <p>We sent a six-digit verification code to <strong>{email || "your email"}</strong>.</p>
@@ -207,7 +216,6 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             </div>
           ) : (
             <div className="auth-step auth-view auth-step--email" key={`${mode}-email`}>
-              <button className="auth-back" type="button" onClick={() => setStep("choices")}><FiArrowLeft />Back</button>
               <span className="auth-kicker">{mode === "login" ? "Continue with email" : "Create your account"}</span>
               <h2 id="auth-title">{mode === "login" ? "Log in with email" : "Tell us about you"}</h2>
               <p>{mode === "login" ? "Enter your email and password to continue." : "Add your details, then verify your email with a six-digit code."}</p>

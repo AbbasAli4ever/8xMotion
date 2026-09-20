@@ -1204,13 +1204,23 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .auth-back {
   position: absolute;
-  top: 1.65rem;
-  left: 1.5rem;
-  display: inline-flex;
+  z-index: 5;
+  top: 1.4rem;
+  left: 1.4rem;
+  display: grid;
+  width: 2.8rem;
+  aspect-ratio: 1;
   align-items: center;
-  gap: 0.4rem;
+  justify-content: center;
   padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  backdrop-filter: blur(12px);
 }
+
+.auth-back:hover { border-color: var(--lime); color: var(--lime); }
 .auth-resend { display: block; margin: 1rem auto 0; color: var(--lime); font-size: 0.8rem; }
 
 .otp-fields { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.55rem; margin: 2rem 0 1.25rem; }
@@ -1228,7 +1238,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .auth-panel { padding: 6.25rem 1.25rem 2rem; }
   .auth-modal__close { top: 1rem; right: 1rem; }
   .auth-panel__logo { top: 0.5rem; left: 50%; width: 160px; height: 72px; }
-  .auth-back { top: 1.45rem; left: 1.1rem; }
+  .auth-back { top: 1rem; left: 1rem; }
   .auth-form__row { grid-template-columns: 1fr; }
   .otp-fields { gap: 0.35rem; }
   .otp-fields input { height: 52px; }
