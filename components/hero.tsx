@@ -121,11 +121,7 @@ export function Hero() {
           const visibleCards = mobile ? cards.slice(0, 4) : cards;
           const hiddenCards = mobile ? cards.slice(4) : [];
           gsap.set(hiddenCards, { display: "none" });
-          gsap.set(content, {
-            autoAlpha: 0,
-            y: mobile ? 34 : 58,
-            filter: "blur(12px)",
-          });
+          gsap.set(content, { autoAlpha: 1, y: 0, filter: "blur(0px)" });
           gsap.set(visibleCards, {
             autoAlpha: 0,
             scale: 0.68,
@@ -153,9 +149,9 @@ export function Hero() {
             .to(
               video,
               {
-                width: mobile ? "76vw" : tablet ? "54vw" : "34vw",
-                height: mobile ? "22svh" : tablet ? "27svh" : "30svh",
-                top: mobile ? "23%" : "22%",
+                width: mobile ? "68vw" : tablet ? "44vw" : "30vw",
+                height: mobile ? "19svh" : tablet ? "23svh" : "24svh",
+                top: mobile ? "21%" : "22%",
                 borderRadius: mobile ? 22 : 30,
                 duration: 1.35,
                 ease: "power2.inOut",
@@ -163,11 +159,6 @@ export function Hero() {
               0.12,
             )
             .to(".video-shade", { opacity: 0.12, duration: 0.8 }, 0.18)
-            .to(
-              content,
-              { autoAlpha: 1, y: 0, filter: "blur(0px)", duration: 0.78 },
-              0.64,
-            )
             .to(
               visibleCards,
               {
@@ -249,7 +240,7 @@ export function Hero() {
         <div ref={contentRef} className="hero-content">
           <p className="hero-content__eyebrow">AI-powered creative studio</p>
           <h1 id="hero-title">
-            Where ideas become <span>visual stories</span>
+            WHERE IDEAS BECOME <span>VISUAL STORIES</span>
           </h1>
           <p className="hero-content__copy">
             Create cinematic visuals, characters, and worlds with AI—built for ideas
