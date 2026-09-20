@@ -1,3 +1,4 @@
+import { CircularVideoSlider } from "@/components/circular-video-slider";
 import { Hero } from "@/components/hero";
 import { Navbar } from "@/components/navbar";
 import { PartnerMarquee } from "@/components/partner-marquee";
@@ -10,6 +11,7 @@ export default function Home() {
       <Hero />
       <PartnerMarquee />
       <PhoneShowcase />
+      <CircularVideoSlider />
     </main>
   );
 }
