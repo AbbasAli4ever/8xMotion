@@ -42,6 +42,7 @@ type AuthModalProps = {
 
 export function AuthModal({ open, onClose }: AuthModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
+  const toggleIndicatorRef = useRef<HTMLSpanElement>(null);
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const [mode, setMode] = useState<AuthMode>("signup");
@@ -96,6 +97,17 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     }, modalRef);
     return () => context.revert();
   }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open || !toggleIndicatorRef.current) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    gsap.to(toggleIndicatorRef.current, {
+      xPercent: mode === "signup" ? 100 : 0,
+      duration: reduceMotion ? 0 : 0.48,
+      ease: "power3.inOut",
+      overwrite: true,
+    });
+  }, [mode, open]);
 
   if (!open) return null;
 
@@ -191,28 +203,31 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               <button className="auth-resend" type="button">Resend code</button>
             </div>
           ) : step === "choices" ? (
-            <div className="auth-step auth-view" key={`${mode}-choices`}>
+            <div className="auth-step auth-step--choices">
               <div className="auth-toggle" aria-label="Authentication mode">
+                <span ref={toggleIndicatorRef} className="auth-toggle__indicator" aria-hidden="true" />
                 <button className={mode === "login" ? "is-active" : ""} onClick={() => changeMode("login")} type="button">Log in</button>
                 <button className={mode === "signup" ? "is-active" : ""} onClick={() => changeMode("signup")} type="button">Sign up</button>
               </div>
 
-              <span className="auth-kicker">Your creative workspace</span>
-              <h2 id="auth-title">{mode === "login" ? "Welcome back" : "Create without limits"}</h2>
-              <p>{mode === "login" ? "Continue where your ideas left off." : "Join 8xMotion and bring your next visual story to life."}</p>
+              <div className="auth-choice-content auth-view" key={`${mode}-choices`}>
+                <span className="auth-kicker">Your creative workspace</span>
+                <h2 id="auth-title">{mode === "login" ? "Welcome back" : "Create without limits"}</h2>
+                <p>{mode === "login" ? "Continue where your ideas left off." : "Join 8xMotion and bring your next visual story to life."}</p>
 
-              <button className="auth-google" type="button">
-                <Image src="/google.svg" alt="" width={22} height={22} />
-                {mode === "login" ? "Continue with Google" : "Sign up with Google"}
-              </button>
+                <button className="auth-google" type="button">
+                  <Image src="/google.svg" alt="" width={22} height={22} />
+                  {mode === "login" ? "Continue with Google" : "Sign up with Google"}
+                </button>
 
-              <div className="auth-divider"><span>or</span></div>
+                <div className="auth-divider"><span>or</span></div>
 
-              <button className="auth-email-choice" type="button" onClick={() => setStep("email")}>
-                <FiMail aria-hidden="true" />{mode === "login" ? "Continue with email" : "Sign up with email"}
-              </button>
+                <button className="auth-email-choice" type="button" onClick={() => setStep("email")}>
+                  <FiMail aria-hidden="true" />{mode === "login" ? "Continue with email" : "Sign up with email"}
+                </button>
 
-              <p className="auth-terms">By continuing, you agree to our Terms and Privacy Policy.</p>
+                <p className="auth-terms">By continuing, you agree to our Terms and Privacy Policy.</p>
+              </div>
             </div>
           ) : (
             <div className="auth-step auth-view auth-step--email" key={`${mode}-email`}>
