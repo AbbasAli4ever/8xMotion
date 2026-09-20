@@ -1,7 +1,16 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { FiArrowUpRight, FiAperture, FiCamera, FiFilm, FiMapPin, FiZap } from "react-icons/fi";
+import {
+  FiAperture,
+  FiArrowUpRight,
+  FiCamera,
+  FiChevronLeft,
+  FiChevronRight,
+  FiFilm,
+  FiMapPin,
+  FiZap,
+} from "react-icons/fi";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
@@ -39,17 +48,42 @@ const slides = [
   },
 ];
 
-function circularOffset(index: number, activeIndex: number) {
-  let offset = index - activeIndex;
-  if (offset > slides.length / 2) offset -= slides.length;
-  if (offset < -slides.length / 2) offset += slides.length;
-  return offset;
+function getCarouselSlot(index: number, activeIndex: number) {
+  let slot = index - activeIndex;
+  if (slot > 2) slot -= slides.length;
+  if (slot < -2) slot += slides.length;
+  return slot;
+}
+
+function getSlotTransform(slot: number) {
+  const distance = Math.abs(slot);
+
+  return {
+    xPercent: slot * 74,
+    y: distance === 0 ? 0 : distance === 1 ? 28 : 58,
+    z: distance === 0 ? 0 : distance === 1 ? -130 : -280,
+    rotationY: slot * -10,
+    scale: distance === 0 ? 1 : distance === 1 ? 0.76 : 0.58,
+    opacity: distance === 0 ? 1 : distance === 1 ? 0.42 : 0.08,
+    filter: distance === 0 ? "blur(0px)" : distance === 1 ? "blur(5px)" : "blur(11px)",
+    zIndex: 10 - distance,
+  };
 }
 
 export function CircularVideoSlider() {
   const rootRef = useRef<HTMLElement>(null);
   const progressRef = useRef<HTMLSpanElement>(null);
+  const previousIndexRef = useRef(0);
+  const directionRef = useRef<1 | -1>(1);
+  const firstRenderRef = useRef(true);
   const [activeIndex, setActiveIndex] = useState(0);
+
+  const navigate = (nextIndex: number, direction: 1 | -1) => {
+    if (nextIndex === activeIndex) return;
+    previousIndexRef.current = activeIndex;
+    directionRef.current = direction;
+    setActiveIndex(nextIndex);
+  };
 
   useLayoutEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -61,49 +95,72 @@ export function CircularVideoSlider() {
     const cards = gsap.utils.toArray<HTMLElement>(".circular-slide", root);
     const videos = gsap.utils.toArray<HTMLVideoElement>(".circular-slide video", root);
 
-    const context = gsap.context(() => {
-      cards.forEach((card, index) => {
-        const offset = circularOffset(index, activeIndex);
-        const distance = Math.abs(offset);
-        const active = offset === 0;
+    cards.forEach((card, index) => {
+      const slot = getCarouselSlot(index, activeIndex);
+      const previousSlot = getCarouselSlot(index, previousIndexRef.current);
+      const active = slot === 0;
+      const wrapsForward = directionRef.current === 1 && previousSlot === -2 && slot === 2;
+      const wrapsBackward = directionRef.current === -1 && previousSlot === 2 && slot === -2;
+      const wraps = !firstRenderRef.current && (wrapsForward || wrapsBackward);
+      const target = getSlotTransform(slot);
 
-        card.setAttribute("aria-hidden", String(!active));
+      card.setAttribute("aria-hidden", String(!active));
+
+      if (firstRenderRef.current || reduceMotion) {
+        gsap.set(card, target);
+        return;
+      }
+
+      if (wraps) {
+        gsap.set(card, { ...target, opacity: 0 });
         gsap.to(card, {
-          xPercent: offset * (distance === 2 ? 84 : 68),
-          y: distance === 0 ? 0 : distance === 1 ? 34 : 68,
-          z: distance === 0 ? 0 : distance === 1 ? -160 : -300,
-          rotationY: offset * -24,
-          scale: distance === 0 ? 1 : distance === 1 ? 0.72 : 0.5,
-          opacity: distance === 0 ? 1 : distance === 1 ? 0.46 : 0.16,
-          filter: distance === 0 ? "blur(0px)" : distance === 1 ? "blur(2px)" : "blur(7px)",
-          zIndex: 10 - distance,
-          duration: reduceMotion ? 0 : 0.9,
-          ease: "power3.inOut",
+          opacity: target.opacity,
+          duration: 0.55,
+          delay: 0.28,
+          ease: "power2.out",
           overwrite: true,
         });
-      });
-
-      videos.forEach((video, index) => {
-        if (index === activeIndex) {
-          video.currentTime = 0;
-          void video.play().catch(() => undefined);
-        } else {
-          video.pause();
-        }
-      });
-
-      if (progressRef.current) {
-        gsap.set(progressRef.current, { scaleX: 0, transformOrigin: "left center" });
-        gsap.to(progressRef.current, {
-          scaleX: 1,
-          duration: 5,
-          ease: "none",
-          onComplete: () => setActiveIndex((current) => (current + 1) % slides.length),
-        });
+        return;
       }
-    }, root);
 
-    return () => context.revert();
+      gsap.to(card, {
+        ...target,
+        duration: 1.15,
+        ease: "power3.inOut",
+        overwrite: true,
+      });
+    });
+
+    videos.forEach((video, index) => {
+      if (index === activeIndex) {
+        video.currentTime = 0;
+        void video.play().catch(() => undefined);
+      } else {
+        video.pause();
+      }
+    });
+
+    const progress = progressRef.current;
+    if (progress) {
+      gsap.set(progress, { scaleX: 0, transformOrigin: "left center" });
+      gsap.to(progress, {
+        scaleX: 1,
+        duration: 5,
+        ease: "none",
+        onComplete: () => {
+          previousIndexRef.current = activeIndex;
+          directionRef.current = 1;
+          setActiveIndex((current) => (current + 1) % slides.length);
+        },
+      });
+    }
+
+    firstRenderRef.current = false;
+
+    return () => {
+      gsap.killTweensOf(cards);
+      if (progress) gsap.killTweensOf(progress);
+    };
   }, [activeIndex]);
 
   useLayoutEffect(() => {
@@ -135,10 +192,33 @@ export function CircularVideoSlider() {
   return (
     <section ref={rootRef} className="circular-slider" aria-labelledby="circular-slider-title">
       <header className="circular-slider__heading">
-        <span>Five ways to create</span>
-        <h2 id="circular-slider-title">
-          Every idea has a <em>story</em>
-        </h2>
+        <div className="circular-slider__intro">
+          <span>Five ways to create</span>
+          <h2 id="circular-slider-title">
+            From concept to<br />
+            <em>AI videos</em>
+          </h2>
+          <p>
+            Turn ideas into finished films—shape movement, atmosphere, characters,
+            and worlds in minutes.
+          </p>
+        </div>
+        <div className="circular-slider__arrows" aria-label="Video carousel controls">
+          <button
+            aria-label="Previous video"
+            onClick={() => navigate((activeIndex - 1 + slides.length) % slides.length, -1)}
+            type="button"
+          >
+            <FiChevronLeft aria-hidden="true" />
+          </button>
+          <button
+            aria-label="Next video"
+            onClick={() => navigate((activeIndex + 1) % slides.length, 1)}
+            type="button"
+          >
+            <FiChevronRight aria-hidden="true" />
+          </button>
+        </div>
       </header>
 
       <div className="circular-slider__stage">
@@ -170,7 +250,7 @@ export function CircularVideoSlider() {
               aria-current={index === activeIndex ? "true" : undefined}
               className={index === activeIndex ? "is-active" : ""}
               key={slide.title}
-              onClick={() => setActiveIndex(index)}
+              onClick={() => navigate(index, index < activeIndex ? -1 : 1)}
               type="button"
             >
               {index === activeIndex && <span ref={progressRef} />}
