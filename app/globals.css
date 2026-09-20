@@ -852,11 +852,11 @@ button, a { -webkit-tap-highlight-color: transparent; }
 .site-footer__bottom-mark {
   position: absolute;
   z-index: 0;
-  right: 10%;
-  bottom: 1%;
-  left: 10%;
-  height: clamp(180px, 25vw, 390px);
-  opacity: 0.82;
+  right: 4%;
+  bottom: -9vw;
+  left: 4%;
+  height: 46vw;
+  opacity: 0.48;
   pointer-events: none;
 }
 
@@ -893,7 +893,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   .site-footer__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2.5rem 1.5rem; }
   .site-footer__brand { grid-column: 1 / -1; grid-row: auto; }
   .site-footer__brand > a { width: 210px; }
-  .site-footer__bottom-mark { right: 5%; bottom: 4%; left: 5%; height: 170px; }
+  .site-footer__bottom-mark { right: 2%; bottom: 3%; left: 2%; height: 48vw; opacity: 0.52; }
   .site-footer__legal { flex-direction: column; gap: 0.25rem; }
 }
 

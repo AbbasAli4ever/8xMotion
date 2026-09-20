@@ -70,7 +70,7 @@ export function Footer() {
       </div>
 
       <div className="site-footer__bottom-mark" aria-hidden="true">
-        <Image src="/BLogo.png" alt="" fill sizes="100vw" />
+        <Image src="/footer-logo.png" alt="" fill sizes="100vw" />
       </div>
       <div className="site-footer__legal">
         <span>© {new Date().getFullYear()} 8xMotion</span>
