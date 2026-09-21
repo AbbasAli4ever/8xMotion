@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { FiArrowLeft, FiEye, FiEyeOff, FiMail, FiX } from "react-icons/fi";
 import gsap from "gsap";
@@ -41,6 +42,7 @@ type AuthModalProps = {
 };
 
 export function AuthModal({ open, onClose }: AuthModalProps) {
+  const router = useRouter();
   const modalRef = useRef<HTMLDivElement>(null);
   const toggleIndicatorRef = useRef<HTMLSpanElement>(null);
   const videoRefs = useRef<Array<HTMLVideoElement | null>>([]);
@@ -117,9 +119,15 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     setOtp(["", "", "", "", "", ""]);
   };
 
+  const completeAuth = () => {
+    onClose();
+    router.push("/dashboard");
+  };
+
   const submitEmail = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (mode === "signup") setStep("otp");
+    else completeAuth();
   };
 
   const updateOtp = (index: number, value: string) => {
@@ -199,7 +207,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   />
                 ))}
               </div>
-              <button className="auth-primary" type="button" disabled={otp.some((digit) => !digit)}>Verify email</button>
+              <button className="auth-primary" type="button" disabled={otp.some((digit) => !digit)} onClick={completeAuth}>Verify email</button>
               <button className="auth-resend" type="button">Resend code</button>
             </div>
           ) : step === "choices" ? (
@@ -215,7 +223,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 <h2 id="auth-title">{mode === "login" ? "Welcome back" : "Create without limits"}</h2>
                 <p>{mode === "login" ? "Continue where your ideas left off." : "Join 8xMotion and bring your next visual story to life."}</p>
 
-                <button className="auth-google" type="button">
+                <button className="auth-google" type="button" onClick={completeAuth}>
                   <Image src="/google.svg" alt="" width={22} height={22} />
                   {mode === "login" ? "Continue with Google" : "Sign up with Google"}
                 </button>
