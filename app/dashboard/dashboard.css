@@ -2483,6 +2483,8 @@
 }
 
 .image-creation-hero {
+  position: relative;
+  z-index: 1;
   display: grid;
   justify-items: center;
   text-align: center;
@@ -2539,6 +2541,8 @@
 
 .image-composer {
   position: absolute;
+  z-index: 200;
+  overflow: visible;
   right: clamp(20px, 8vw, 150px);
   bottom: 24px;
   left: clamp(20px, 8vw, 150px);
@@ -2608,6 +2612,200 @@
   font-size: 0.76rem;
 }
 
+.image-filter-wrap {
+  position: relative;
+}
+
+.image-filter-wrap > button {
+  display: flex;
+  min-height: 38px;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 11px;
+  border: 1px solid rgba(255, 255, 255, 0.075);
+  border-radius: 11px;
+  background: rgba(0, 0, 0, 0.25);
+  color: #e6e8e4;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.image-filter-wrap > button svg {
+  width: 15px;
+  height: 15px;
+  color: var(--dashboard-lime);
+}
+
+.image-option-menu,
+.image-model-menu {
+  border: 1px solid rgba(210, 254, 24, 0.1);
+  background: rgba(23, 25, 24, 0.985);
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.54);
+  backdrop-filter: blur(24px);
+}
+
+.image-option-menu {
+  position: absolute;
+  z-index: 110;
+  bottom: calc(100% + 12px);
+  left: 0;
+  display: grid;
+  width: 270px;
+  max-height: min(570px, 70vh);
+  overflow-y: auto;
+  gap: 4px;
+  padding: 11px;
+  border-radius: 17px;
+}
+
+.image-filter-wrap:nth-child(4) .image-option-menu {
+  right: 0;
+  left: auto;
+}
+
+.image-option-menu > strong {
+  padding: 4px 8px 8px;
+  color: #a1a5a1;
+  font-size: 0.83rem;
+  font-weight: 600;
+}
+
+.image-option-menu > button {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 11px;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: #f0f1ed;
+  text-align: left;
+  cursor: pointer;
+}
+
+.image-option-menu > button.is-active,
+.image-option-menu > button:hover {
+  background: rgba(255, 255, 255, 0.085);
+}
+
+.image-option-menu > button span,
+.image-option-menu > button b,
+.image-option-menu > button small {
+  display: block;
+}
+
+.image-option-menu > button b {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.image-option-menu > button small {
+  margin-top: 3px;
+  color: #8c908c;
+  font-size: 0.67rem;
+  text-transform: capitalize;
+}
+
+.image-option-menu > button > svg {
+  flex: 0 0 auto;
+  color: #bbc0bb;
+}
+
+.image-model-menu {
+  position: fixed;
+  z-index: 120;
+  right: clamp(20px, 8vw, 150px);
+  bottom: 146px;
+  left: clamp(20px, 8vw, 150px);
+  display: grid;
+  max-width: 720px;
+  max-height: min(610px, calc(100svh - 190px));
+  overflow-y: auto;
+  gap: 5px;
+  padding: 13px;
+  border-radius: 21px;
+}
+
+.image-model-menu > label {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 13px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.065);
+  color: #8a8f8a;
+}
+
+.image-model-menu > label input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.image-model-menu > small {
+  padding: 5px 8px;
+  color: #858a85;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.image-model-menu > button {
+  display: grid;
+  grid-template-columns: 48px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 9px;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: #f3f4f0;
+  text-align: left;
+  cursor: pointer;
+}
+
+.image-model-menu > button:hover,
+.image-model-menu > button.is-active {
+  background: rgba(255, 255, 255, 0.065);
+}
+
+.image-model-menu > button > span:first-child {
+  display: grid;
+  width: 48px;
+  height: 48px;
+  place-items: center;
+  border-radius: 11px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #9ca19c;
+}
+
+.image-model-menu > button.is-active > span:first-child,
+.image-model-menu > button > svg {
+  color: var(--dashboard-lime);
+}
+
+.image-model-menu > button > span:nth-child(2) strong,
+.image-model-menu > button > span:nth-child(2) small {
+  display: block;
+}
+
+.image-model-menu > button > span:nth-child(2) strong {
+  margin-bottom: 4px;
+  font-size: 0.82rem;
+}
+
+.image-model-menu > button > span:nth-child(2) small {
+  overflow: hidden;
+  color: #828782;
+  font-size: 0.7rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .image-composer__options > button { cursor: pointer; }
 .image-composer__options > button svg:first-child { color: var(--dashboard-lime); }
 
@@ -2658,6 +2856,8 @@
   .image-arc-card { width: 150px; height: 170px; border-width: 4px; border-radius: 19px; }
   .image-composer__options > button { flex: 1; justify-content: center; }
   .video-model-menu { top: 78px; right: 10px; left: 10px; width: auto; }
+  .image-model-menu { right: 10px; bottom: 236px; left: 10px; }
+  .image-option-menu { width: min(270px, calc(100vw - 28px)); }
 }
 
 @media (max-width: 520px) {
