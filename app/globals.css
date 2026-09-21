@@ -1110,6 +1110,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
 
 .auth-toggle {
   position: relative;
+  overflow: hidden;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.25rem;
@@ -1129,7 +1130,7 @@ button, a { -webkit-tap-highlight-color: transparent; }
   border-radius: 999px;
   background: var(--accent-gradient);
   box-shadow: 0 8px 24px rgba(210, 254, 24, 0.13);
-  transform: translateX(100%);
+  transform: translateX(0);
   will-change: transform;
 }
 
