@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { FiAtSign, FiBell, FiCheck, FiChevronRight, FiClock, FiDownload, FiEdit3, FiFolder, FiGrid, FiHelpCircle, FiImage, FiLogOut, FiMaximize, FiMenu, FiMinus, FiMusic, FiPlay, FiPlus, FiSettings, FiSliders, FiUpload, FiUser, FiVideo, FiVolume2, FiX, FiZap } from "react-icons/fi";
+import { FiAtSign, FiBell, FiCheck, FiChevronRight, FiClock, FiCpu, FiDownload, FiFolder, FiGrid, FiHelpCircle, FiImage, FiLayers, FiLogOut, FiMaximize, FiMenu, FiMinus, FiMonitor, FiMusic, FiPlay, FiPlus, FiSettings, FiSliders, FiStar, FiUpload, FiUser, FiVideo, FiVolume2, FiX, FiZap } from "react-icons/fi";
 import { LuCrown } from "react-icons/lu";
 import gsap from "gsap";
 
@@ -47,19 +47,17 @@ export function Dashboard() {
 
   return (
     <main className={`dashboard-shell dashboard-shell--${mode}`}>
-      <DashboardHeader mode={mode} onModeChange={changeMode} profileOpen={profileOpen} setProfileOpen={setProfileOpen} mobilePanelOpen={mobilePanelOpen} setMobilePanelOpen={setMobilePanelOpen} onOpenAssets={() => setWorkspaceTab("history")} />
+      <DashboardHeader mode={mode} onModeChange={changeMode} profileOpen={profileOpen} setProfileOpen={setProfileOpen} mobilePanelOpen={mobilePanelOpen} setMobilePanelOpen={setMobilePanelOpen} onOpenAssets={() => setWorkspaceTab((current) => current === "history" ? "guide" : "history")} />
       {mode === "video" ? (
         <div className="dashboard-body dashboard-body--video">
           <VideoSidebar fileInputRef={fileInputRef} generating={generating} onFile={onFile} onGenerate={startGeneration} open={mobilePanelOpen} preview={preview} prompt={prompt} setPrompt={setPrompt} setSourceMode={setSourceMode} sourceMode={sourceMode} />
           {mobilePanelOpen && <button className="dashboard-backdrop" aria-label="Close controls" onClick={() => setMobilePanelOpen(false)} type="button" />}
           <section ref={contentRef} className="dashboard-workspace dashboard-workspace--video">
-            <WorkspaceToolbar mode="video" tab={workspaceTab} setTab={setWorkspaceTab} label="Create video" />
             {workspaceTab === "history" ? <HistoryPanel generated={generated} mode="video" /> : <VideoWorkspace generated={generated} />}
           </section>
         </div>
       ) : (
         <section ref={contentRef} className="image-dashboard">
-          <WorkspaceToolbar mode="image" tab={workspaceTab} setTab={setWorkspaceTab} label="Create image" />
           {workspaceTab === "history" ? <HistoryPanel generated={generated} mode="image" /> : generated ? <GeneratedResult mode="image" /> : <ImageCreationCanvas count={imageCount} generating={generating} onGenerate={startGeneration} prompt={prompt} setCount={setImageCount} setPrompt={setPrompt} />}
         </section>
       )}
@@ -72,7 +70,7 @@ function DashboardHeader({ mode, onModeChange, profileOpen, setProfileOpen, mobi
   return <header className="dashboard-header">
     <Link className="dashboard-brand" href="/" aria-label="8xMotion home"><Image src="/BLogo.png" alt="8xMotion" width={1774} height={887} priority /></Link>
     <nav className="dashboard-primary-nav" data-mode={mode} aria-label="Creation mode"><span className="dashboard-primary-nav__indicator" aria-hidden="true" /><button className={mode === "video" ? "is-active" : ""} onClick={() => onModeChange("video")} type="button"><FiVideo /><span>Video</span></button><button className={mode === "image" ? "is-active" : ""} onClick={() => onModeChange("image")} type="button"><FiImage /><span>Image</span></button></nav>
-    <div className="dashboard-account"><button className="dashboard-assets-button" type="button" onClick={onOpenAssets}><FiFolder aria-hidden="true" /><span>Assets</span></button><button className="dashboard-icon-button" type="button" aria-label="Notifications"><FiBell aria-hidden="true" /></button><div className="profile-menu"><button className="profile-trigger" type="button" aria-expanded={profileOpen} onClick={() => setProfileOpen(!profileOpen)} aria-label="Open profile"><span>AM</span></button>{profileOpen && <div className="profile-dropdown profile-dropdown--account"><div className="profile-summary"><span className="profile-summary__avatar">AM</span><div><strong>Alex Morgan</strong><span>Free plan</span></div></div><div className="profile-credit-card"><div className="profile-credit-card__title"><span>Credits <FiHelpCircle /></span><button type="button">1,240 left <FiChevronRight /></button></div><div className="profile-credit-dots" aria-hidden="true">{Array.from({ length: 26 }, (_, index) => <i key={index} />)}</div><div className="profile-upgrade"><span><LuCrown />Go Premium</span><button type="button">Upgrade</button></div></div><div className="profile-actions"><button type="button"><FiUser />Manage profile</button><button type="button"><FiSettings />Settings</button><Link href="/"><FiLogOut />Log out</Link></div></div>}</div>{mode === "video" && <button className="dashboard-mobile-toggle" type="button" onClick={() => setMobilePanelOpen(!mobilePanelOpen)} aria-label="Toggle controls">{mobilePanelOpen ? <FiX /> : <FiMenu />}</button>}</div>
+    <div className="dashboard-account"><button className="dashboard-assets-button" type="button" onClick={onOpenAssets}><FiFolder aria-hidden="true" /><span>Assets</span></button><button className="dashboard-icon-button" type="button" aria-label="Notifications"><FiBell aria-hidden="true" /></button><div className="profile-menu"><button className="profile-trigger" type="button" aria-expanded={profileOpen} onClick={() => setProfileOpen(!profileOpen)} aria-label="Open profile"><span>AM</span></button>{profileOpen && <div className="profile-dropdown profile-dropdown--account"><div className="profile-summary"><span className="profile-summary__avatar">AM</span><div><strong>Alex Morgan</strong><span>Free plan</span></div></div><div className="profile-credit-card"><div className="profile-credit-card__title"><span>Credits <FiHelpCircle /></span><button type="button">1,240 left <FiChevronRight /></button></div><div className="profile-credit-dots" aria-hidden="true">{Array.from({ length: 13 }, (_, index) => <i key={index} />)}</div><div className="profile-upgrade"><span><LuCrown />Go Premium</span><button type="button">Upgrade</button></div></div><div className="profile-actions"><button type="button"><FiUser />Manage profile</button><button type="button"><FiSettings />Settings</button><Link href="/"><FiLogOut />Log out</Link></div></div>}</div>{mode === "video" && <button className="dashboard-mobile-toggle" type="button" onClick={() => setMobilePanelOpen(!mobilePanelOpen)} aria-label="Toggle controls">{mobilePanelOpen ? <FiX /> : <FiMenu />}</button>}</div>
   </header>;
 }
 
@@ -80,7 +78,7 @@ type VideoSidebarProps = { fileInputRef: React.RefObject<HTMLInputElement | null
 function VideoSidebar({ fileInputRef, generating, onFile, onGenerate, open, preview, prompt, setPrompt, setSourceMode, sourceMode }: VideoSidebarProps) {
   return <aside className={`creation-sidebar premium-sidebar${open ? " is-open" : ""}`}>
     <div className="premium-sidebar__scroll">
-      <article className="model-preview-card"><video src={dashboardVideo} autoPlay muted loop playsInline preload="metadata" /><div className="model-preview-card__shade" /><button type="button"><FiEdit3 />Change</button><div><strong>GENERAL</strong><span>Seedance 2.5</span></div></article>
+      <article className="model-preview-card"><video src={dashboardVideo} autoPlay muted loop playsInline preload="metadata" /><div className="model-preview-card__shade" /><div><strong>GENERAL</strong><span>Seedance 2.5</span></div></article>
       <div className="source-switch"><button className={sourceMode === "references" ? "is-active" : ""} onClick={() => setSourceMode("references")} type="button">References</button><button className={sourceMode === "extend" ? "is-active" : ""} onClick={() => setSourceMode("extend")} type="button">Extend Video</button></div>
       <button className={`reference-drop${preview ? " has-preview" : ""}`} type="button" onClick={() => fileInputRef.current?.click()}>{preview ? (sourceMode === "extend" ? <video src={preview} muted /> : <Image src={preview} alt="Uploaded reference" fill unoptimized />) : <><div><span><FiImage /></span><span><FiVideo /></span><span><FiMusic /></span></div><strong>Add references</strong><small>{sourceMode === "extend" ? "Upload the video you want to extend" : "Image, Video or Audio"}</small></>}</button>
       <input ref={fileInputRef} hidden type="file" accept={sourceMode === "extend" ? "video/*" : "image/*"} onChange={onFile} />
@@ -90,10 +88,6 @@ function VideoSidebar({ fileInputRef, generating, onFile, onGenerate, open, prev
     </div>
     <button className="premium-generate" type="button" disabled={generating} onClick={onGenerate}>{generating ? <><span className="generate-spinner" />Generating…</> : <>Generate <FiZap /><del>80</del><strong>60</strong></>}</button>
   </aside>;
-}
-
-function WorkspaceToolbar({ mode, tab, setTab, label }: { mode: CreationMode; tab: "guide" | "history"; setTab: (tab: "guide" | "history") => void; label: string }) {
-  return <div className="workspace-toolbar workspace-toolbar--stacked"><div><button className={tab === "history" ? "is-active" : ""} onClick={() => setTab("history")} type="button"><FiFolder />History</button><button className={tab === "guide" ? "is-active" : ""} onClick={() => setTab("guide")} type="button"><FiHelpCircle />How it works</button></div><small>{mode === "image" ? "Create image" : label}</small></div>;
 }
 
 function VideoWorkspace({ generated }: { generated: boolean }) {
@@ -110,7 +104,47 @@ function GuideVisual({ image, index, Icon }: { image: string; index: number; Ico
 
 type ImageCanvasProps = { count: number; generating: boolean; onGenerate: () => void; prompt: string; setCount: (count: number) => void; setPrompt: (prompt: string) => void };
 function ImageCreationCanvas({ count, generating, onGenerate, prompt, setCount, setPrompt }: ImageCanvasProps) {
-  return <div className="image-creation-canvas"><div className="image-creation-hero"><div className="image-sample-stack">{imageInspiration.map((image, index) => <div key={image} style={{ "--sample-index": index } as React.CSSProperties}><Image src={`/HeroImages/${image}`} alt="AI image example" fill sizes="180px" /></div>)}</div><h1>Start creating with<br /><span>8xMotion Soul Cinema</span></h1><p>Describe a scene, character, mood, or style — and watch it come to life.</p></div><div className="image-composer"><div className="image-composer__input"><button type="button" aria-label="Add reference"><FiPlus /></button><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the scene you imagine" rows={1} /></div><div className="image-composer__bottom"><div className="image-composer__options"><button type="button"><FiZap />Soul Image 2 <FiChevronRight /></button><button type="button"><FiMaximize />Auto</button><button type="button"><FiZap />High</button><button type="button"><FiGrid />2K</button><button type="button"><FiSliders />Auto</button><div className="count-stepper"><button type="button" aria-label="Decrease count" onClick={() => setCount(Math.max(1, count - 1))}><FiMinus /></button><span>{count}/4</span><button type="button" aria-label="Increase count" onClick={() => setCount(Math.min(4, count + 1))}><FiPlus /></button></div></div><button className="image-generate" type="button" disabled={generating} onClick={onGenerate}>{generating ? "Creating…" : <>Generate <FiZap /><del>8.5</del><strong>6.5</strong></>}</button></div></div></div>;
+  return <div className="image-creation-canvas"><div className="image-creation-hero"><AnimatedImageArc /><h1>Start creating with<br /><span>8xMotion Soul Cinema</span></h1><p>Describe a scene, character, mood, or style — and watch it come to life.</p></div><div className="image-composer"><div className="image-composer__input"><button type="button" aria-label="Add reference"><FiPlus /></button><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the scene you imagine" rows={1} /></div><div className="image-composer__bottom"><div className="image-composer__options"><button type="button"><FiCpu />Soul Image 2 <FiChevronRight /></button><button type="button"><FiMaximize />Auto</button><button type="button"><FiStar />High</button><button type="button"><FiMonitor />2K</button><button type="button"><FiLayers />Auto</button><div className="count-stepper"><button type="button" aria-label="Decrease count" onClick={() => setCount(Math.max(1, count - 1))}><FiMinus /></button><span>{count}/4</span><button type="button" aria-label="Increase count" onClick={() => setCount(Math.min(4, count + 1))}><FiPlus /></button></div></div><button className="image-generate" type="button" disabled={generating} onClick={onGenerate}>{generating ? "Creating…" : <>Generate <FiZap /><del>8.5</del><strong>6.5</strong></>}</button></div></div></div>;
+}
+
+function AnimatedImageArc() {
+  const arcRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const root = arcRef.current;
+    if (!root) return;
+    const cards = Array.from(root.querySelectorAll<HTMLElement>(".image-arc-card"));
+    const positions = [
+      { x: -11.4, y: 1.25, rotation: -10, scale: 0.88, zIndex: 1 },
+      { x: -4, y: 0, rotation: -3.5, scale: 0.97, zIndex: 3 },
+      { x: 4, y: 0, rotation: 3.5, scale: 0.97, zIndex: 3 },
+      { x: 11.4, y: 1.25, rotation: 10, scale: 0.88, zIndex: 1 },
+    ];
+    const multiplier = window.innerWidth < 520 ? 0.55 : window.innerWidth < 900 ? 0.78 : 1;
+
+    cards.forEach((card, index) => {
+      const base = positions[index];
+      gsap.fromTo(card, { x: 0, y: "7rem", rotation: 0, scale: 0.55, autoAlpha: 0 }, { x: `${base.x * multiplier}rem`, y: `${base.y}rem`, rotation: base.rotation, scale: base.scale, autoAlpha: 1, zIndex: base.zIndex, duration: 1.05, delay: 0.08 * index, ease: "elastic.out(1,.76)" });
+    });
+
+    const cleanups = cards.map((card, hoveredIndex) => {
+      const enter = () => cards.forEach((item, index) => {
+        const base = positions[index];
+        const direction = index < hoveredIndex ? -1 : index > hoveredIndex ? 1 : 0;
+        gsap.to(item, { x: `${(base.x + direction * 2.8) * multiplier}rem`, y: `${base.y - (index === hoveredIndex ? 1.8 : 0)}rem`, rotation: base.rotation + direction * 1.8, scale: index === hoveredIndex ? base.scale * 1.08 : base.scale, duration: 0.48, ease: "elastic.out(1,.75)", overwrite: true });
+      });
+      card.addEventListener("mouseenter", enter);
+      return () => card.removeEventListener("mouseenter", enter);
+    });
+    const leave = () => cards.forEach((card, index) => {
+      const base = positions[index];
+      gsap.to(card, { x: `${base.x * multiplier}rem`, y: `${base.y}rem`, rotation: base.rotation, scale: base.scale, duration: 0.48, ease: "elastic.out(1,.75)", overwrite: true });
+    });
+    root.addEventListener("mouseleave", leave);
+    return () => { cleanups.forEach((cleanup) => cleanup()); root.removeEventListener("mouseleave", leave); gsap.killTweensOf(cards); };
+  }, []);
+
+  return <div ref={arcRef} className="image-arc" aria-label="Image inspiration examples">{imageInspiration.map((image, index) => <div className="image-arc-card" key={image}><Image src={`/HeroImages/${image}`} alt={`AI image example ${index + 1}`} fill sizes="220px" /></div>)}</div>;
 }
 
 function GeneratedResult({ mode }: { mode: CreationMode }) { return <div className="generated-result"><div className="generated-result__media">{mode === "video" ? <video src={dashboardVideo} autoPlay muted loop playsInline /> : <Image src="/Female_model_posing_in_architecture_20260921034158.jpeg" alt="Generated AI result" fill sizes="70vw" />}</div><div><span><FiCheck />Generation complete</span><h1>Your {mode} is ready</h1><p>This frontend preview simulates the completed generation state.</p><button type="button"><FiDownload />Download</button></div></div>; }
