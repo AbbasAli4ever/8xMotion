@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { FiAtSign, FiBell, FiCheck, FiChevronRight, FiClock, FiCpu, FiDownload, FiFolder, FiGrid, FiHelpCircle, FiImage, FiLayers, FiLogOut, FiMaximize, FiMenu, FiMinus, FiMonitor, FiMusic, FiPlay, FiPlus, FiSettings, FiSliders, FiStar, FiUpload, FiUser, FiVideo, FiVolume2, FiX, FiZap } from "react-icons/fi";
+import { FiAtSign, FiBell, FiCheck, FiChevronRight, FiClock, FiCpu, FiDownload, FiEdit3, FiFastForward, FiFolder, FiGrid, FiHelpCircle, FiImage, FiLayers, FiLogOut, FiMaximize, FiMenu, FiMinus, FiMonitor, FiMusic, FiPlay, FiPlus, FiSettings, FiSliders, FiStar, FiUpload, FiUser, FiVideo, FiVolume2, FiX, FiZap } from "react-icons/fi";
 import { LuCrown } from "react-icons/lu";
 import gsap from "gsap";
 
@@ -82,11 +82,11 @@ function VideoSidebar({ fileInputRef, generating, onFile, onGenerate, open, prev
   const [ratio, setRatio] = useState("16:9");
   const [quality, setQuality] = useState("1080p");
   const models = [
-    { name: "Seedance 2.5", meta: "1080p · 4s–30s" },
-    { name: "8xMotion Genjutsu", meta: "1080p · 4s–30s" },
-    { name: "Seedance 2.5 Edit", meta: "480p–720p · Edit video" },
-    { name: "Seedance 2.0", meta: "4K · 4s–15s" },
-    { name: "Seedance 2.0 Fast", meta: "720p · 4s–15s" },
+    { name: "Seedance 2.5", meta: "1080p · 4s–30s", Icon: FiVideo },
+    { name: "8xMotion Genjutsu", meta: "1080p · 4s–30s", Icon: FiZap },
+    { name: "Seedance 2.5 Edit", meta: "480p–720p · Edit video", Icon: FiEdit3 },
+    { name: "Seedance 2.0", meta: "4K · 4s–15s", Icon: FiLayers },
+    { name: "Seedance 2.0 Fast", meta: "720p · 4s–15s", Icon: FiFastForward },
   ];
   return <aside className={`creation-sidebar premium-sidebar${open ? " is-open" : ""}`}>
     <div className="premium-sidebar__scroll">
@@ -97,7 +97,7 @@ function VideoSidebar({ fileInputRef, generating, onFile, onGenerate, open, prev
       <section className="premium-prompt"><label htmlFor="video-prompt">Prompt <span>{prompt.length}/500</span></label><textarea id="video-prompt" maxLength={500} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the motion, camera, mood, and atmosphere…" /><div><button type="button"><FiAtSign />Elements</button><button type="button"><FiVolume2 />On</button></div></section>
       <div className="video-filter-wrap">
         <button className="model-selector" type="button" onClick={() => setOpenFilter(openFilter === "model" ? null : "model")}><span><small>Model</small><strong>{model} <i><b /><b /><b /></i></strong></span><FiChevronRight /></button>
-        {openFilter === "model" && <div className="video-model-menu"><label><FiSliders /><input autoFocus placeholder="Search models…" /></label><small>Featured models</small>{models.map((item) => <button className={model === item.name ? "is-active" : ""} key={item.name} type="button" onClick={() => { setModel(item.name); setOpenFilter(null); }}><span className="video-model-menu__icon"><FiVideo /></span><span><strong>{item.name}</strong><small>{item.meta}</small></span>{model === item.name && <FiCheck />}</button>)}</div>}
+        {openFilter === "model" && <div className="video-model-menu"><label><FiSliders /><input autoFocus placeholder="Search models…" /></label><small>Featured models</small>{models.map((item) => <button className={model === item.name ? "is-active" : ""} key={item.name} type="button" onClick={() => { setModel(item.name); setOpenFilter(null); }}><span className="video-model-menu__icon"><item.Icon /></span><span><strong>{item.name}</strong><small>{item.meta}</small></span>{model === item.name && <FiCheck />}</button>)}</div>}
       </div>
       <div className="premium-settings">
         <div className="video-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "duration" ? null : "duration")}><FiClock /><span>{duration}s</span></button>{openFilter === "duration" && <div className="video-filter-menu video-duration-menu"><strong>Choose duration</strong><output>{duration}s</output><input aria-label="Video duration" type="range" min="4" max="30" value={duration} onChange={(event) => setDuration(Number(event.target.value))} /></div>}</div>
