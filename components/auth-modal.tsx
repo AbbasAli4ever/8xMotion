@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { FiArrowLeft, FiEye, FiEyeOff, FiMail, FiX } from "react-icons/fi";
 import gsap from "gsap";
+import { API_URL, ApiError, setAccessToken } from "@/lib/api";
 
 type AuthMode = "login" | "signup";
 type AuthStep = "choices" | "email" | "otp";
@@ -53,6 +54,8 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [pending, setPending] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     if (!open) return;
@@ -124,10 +127,36 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     router.push("/dashboard");
   };
 
-  const submitEmail = (event: FormEvent<HTMLFormElement>) => {
+  const submitEmail = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    if (mode === "signup") setStep("otp");
-    else completeAuth();
+    setPending(true); setError("");
+    const form = new FormData(event.currentTarget);
+    const body = Object.fromEntries(form.entries());
+    try {
+      const response = await fetch(`${API_URL}/auth/${mode === "signup" ? "signup" : "login"}`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+      const result = await response.json();
+      if (!response.ok) throw new ApiError(response.status, result);
+      if (mode === "signup") setStep("otp");
+      else { setAccessToken(result.accessToken); completeAuth(); }
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Authentication failed"); }
+    finally { setPending(false); }
+  };
+
+  const verifyEmail = async () => {
+    setPending(true); setError("");
+    try {
+      const response = await fetch(`${API_URL}/auth/verify-email`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, code: otp.join("") }) });
+      const result = await response.json(); if (!response.ok) throw new ApiError(response.status, result);
+      setAccessToken(result.accessToken); completeAuth();
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Verification failed"); }
+    finally { setPending(false); }
+  };
+
+  const resend = async () => {
+    setPending(true); setError("");
+    try { const response = await fetch(`${API_URL}/auth/resend-verification`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); const result = await response.json(); if (!response.ok) throw new ApiError(response.status, result); }
+    catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to resend code"); }
+    finally { setPending(false); }
   };
 
   const updateOtp = (index: number, value: string) => {
@@ -207,8 +236,9 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   />
                 ))}
               </div>
-              <button className="auth-primary" type="button" disabled={otp.some((digit) => !digit)} onClick={completeAuth}>Verify email</button>
-              <button className="auth-resend" type="button">Resend code</button>
+              {error && <p role="alert">{error}</p>}
+              <button className="auth-primary" type="button" disabled={pending || otp.some((digit) => !digit)} onClick={verifyEmail}>{pending ? "Verifying…" : "Verify email"}</button>
+              <button className="auth-resend" type="button" disabled={pending} onClick={resend}>Resend code</button>
             </div>
           ) : step === "choices" ? (
             <div className="auth-step auth-step--choices">
@@ -223,10 +253,10 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 <h2 id="auth-title">{mode === "login" ? "Welcome back" : "Create without limits"}</h2>
                 <p>{mode === "login" ? "Continue where your ideas left off." : "Join 8xMotion and bring your next visual story to life."}</p>
 
-                <button className="auth-google" type="button" onClick={completeAuth}>
+                <a className="auth-google" href={`${API_URL}/auth/google`}>
                   <Image src="/google.svg" alt="" width={22} height={22} />
                   {mode === "login" ? "Continue with Google" : "Sign up with Google"}
-                </button>
+                </a>
 
                 <div className="auth-divider"><span>or</span></div>
 
@@ -243,6 +273,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
               <h2 id="auth-title">{mode === "login" ? "Log in with email" : "Tell us about you"}</h2>
               <p>{mode === "login" ? "Enter your email and password to continue." : "Add your details, then verify your email with a six-digit code."}</p>
               <form className="auth-form" onSubmit={submitEmail}>
+                {error && <p role="alert">{error}</p>}
                 {mode === "signup" && (
                   <div className="auth-form__row">
                     <label><span>First name</span><input name="firstName" autoComplete="given-name" required /></label>
@@ -258,7 +289,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                   </div>
                 </label>
                 {mode === "signup" && <label><span>Confirm password</span><input name="confirmPassword" type={showPassword ? "text" : "password"} autoComplete="new-password" minLength={8} required /></label>}
-                <button className="auth-primary" type="submit">{mode === "login" ? "Log in" : "Create account"}</button>
+                <button className="auth-primary" type="submit" disabled={pending}>{pending ? "Please wait…" : mode === "login" ? "Log in" : "Create account"}</button>
               </form>
             </div>
           )}

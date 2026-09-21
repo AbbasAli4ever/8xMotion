@@ -18,7 +18,7 @@ type MediaCardConfig = {
 
 const mediaCards: MediaCardConfig[] = [
   {
-    src: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?auto=format&fit=crop&w=900&q=85",
+    src: "/HeroImages/hero1.jpeg",
     alt: "Futuristic architecture reaching into a blue sky",
     className: "media-card--one",
     entryX: -130,
@@ -26,7 +26,7 @@ const mediaCards: MediaCardConfig[] = [
     depth: 28,
   },
   {
-    src: "https://images.unsplash.com/photo-1531058020387-3be344556be6?auto=format&fit=crop&w=900&q=85",
+    src: "/HeroImages/hero2.jpeg",
     alt: "Performer surrounded by vivid red stage lighting",
     className: "media-card--two",
     entryX: -150,
@@ -34,7 +34,7 @@ const mediaCards: MediaCardConfig[] = [
     depth: 18,
   },
   {
-    src: "https://images.unsplash.com/photo-1490730141103-6cac27aaab94?auto=format&fit=crop&w=1000&q=85",
+    src: "/HeroImages/hero3.jpeg",
     alt: "Silhouette watching a cinematic sunset",
     className: "media-card--three",
     entryX: 0,
@@ -42,7 +42,7 @@ const mediaCards: MediaCardConfig[] = [
     depth: 10,
   },
   {
-    src: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=85",
+    src: "/HeroImages/hero4.jpeg",
     alt: "Person exploring a misty green landscape",
     className: "media-card--four",
     entryX: 140,
@@ -50,7 +50,7 @@ const mediaCards: MediaCardConfig[] = [
     depth: 24,
   },
   {
-    src: "https://images.unsplash.com/photo-1470229722913-7c0e2dbbafd3?auto=format&fit=crop&w=1000&q=85",
+    src: "/HeroImages/hero5.jpeg",
     alt: "Concert crowd beneath colorful lights",
     className: "media-card--five",
     entryX: -150,
@@ -58,7 +58,7 @@ const mediaCards: MediaCardConfig[] = [
     depth: 14,
   },
   {
-    src: "https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=900&q=85",
+    src: "/HeroImages/hero6.jpeg",
     alt: "Artist painting with a vibrant color palette",
     className: "media-card--six",
     entryX: 20,
@@ -66,7 +66,7 @@ const mediaCards: MediaCardConfig[] = [
     depth: 22,
   },
   {
-    src: "https://images.unsplash.com/photo-1500534314209-a25ddb2bd429?auto=format&fit=crop&w=1100&q=85",
+    src: "/HeroImages/hero7.jpeg",
     alt: "Road crossing a dramatic desert landscape",
     className: "media-card--seven",
     entryX: 150,
