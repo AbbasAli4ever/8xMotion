@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ChangeEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
-import { FiAtSign, FiBell, FiCheck, FiChevronDown, FiChevronRight, FiClock, FiDownload, FiEdit3, FiFolder, FiGrid, FiHelpCircle, FiImage, FiLogOut, FiMaximize, FiMenu, FiMinus, FiMusic, FiPlay, FiPlus, FiSettings, FiSliders, FiUpload, FiUser, FiVideo, FiVolume2, FiX, FiZap } from "react-icons/fi";
+import { FiAtSign, FiBell, FiCheck, FiChevronRight, FiClock, FiDownload, FiEdit3, FiFolder, FiGrid, FiHelpCircle, FiImage, FiLogOut, FiMaximize, FiMenu, FiMinus, FiMusic, FiPlay, FiPlus, FiSettings, FiSliders, FiUpload, FiUser, FiVideo, FiVolume2, FiX, FiZap } from "react-icons/fi";
+import { LuCrown } from "react-icons/lu";
 import gsap from "gsap";
 
 type CreationMode = "video" | "image";
-type VideoFlow = "create" | "edit" | "motion";
 const dashboardVideo = "/dashboard/Explorer_viewing_massive_spacecraft_1080p_20260921052912.mp4";
 const imageInspiration = ["hero2.jpeg", "hero5.jpeg", "hero1.jpeg", "hero7.jpeg"];
 
@@ -15,7 +15,6 @@ export function Dashboard() {
   const contentRef = useRef<HTMLElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [mode, setMode] = useState<CreationMode>("video");
-  const [videoFlow, setVideoFlow] = useState<VideoFlow>("create");
   const [sourceMode, setSourceMode] = useState<"references" | "extend">("references");
   const [prompt, setPrompt] = useState("");
   const [preview, setPreview] = useState<string | null>(null);
@@ -35,7 +34,7 @@ export function Dashboard() {
   useLayoutEffect(() => {
     if (!contentRef.current) return;
     gsap.fromTo(contentRef.current, { x: 22, autoAlpha: 0, filter: "blur(6px)" }, { x: 0, autoAlpha: 1, filter: "blur(0px)", duration: 0.58, ease: "power3.out" });
-  }, [mode, videoFlow, workspaceTab]);
+  }, [mode, workspaceTab]);
 
   const changeMode = (nextMode: CreationMode) => { setMode(nextMode); setGenerated(false); setMobilePanelOpen(false); };
   const onFile = (event: ChangeEvent<HTMLInputElement>) => {
@@ -48,14 +47,14 @@ export function Dashboard() {
 
   return (
     <main className={`dashboard-shell dashboard-shell--${mode}`}>
-      <DashboardHeader mode={mode} onModeChange={changeMode} profileOpen={profileOpen} setProfileOpen={setProfileOpen} mobilePanelOpen={mobilePanelOpen} setMobilePanelOpen={setMobilePanelOpen} />
+      <DashboardHeader mode={mode} onModeChange={changeMode} profileOpen={profileOpen} setProfileOpen={setProfileOpen} mobilePanelOpen={mobilePanelOpen} setMobilePanelOpen={setMobilePanelOpen} onOpenAssets={() => setWorkspaceTab("history")} />
       {mode === "video" ? (
         <div className="dashboard-body dashboard-body--video">
-          <VideoSidebar fileInputRef={fileInputRef} flow={videoFlow} generating={generating} onFile={onFile} onGenerate={startGeneration} onFlowChange={setVideoFlow} open={mobilePanelOpen} preview={preview} prompt={prompt} setPrompt={setPrompt} setSourceMode={setSourceMode} sourceMode={sourceMode} />
+          <VideoSidebar fileInputRef={fileInputRef} generating={generating} onFile={onFile} onGenerate={startGeneration} open={mobilePanelOpen} preview={preview} prompt={prompt} setPrompt={setPrompt} setSourceMode={setSourceMode} sourceMode={sourceMode} />
           {mobilePanelOpen && <button className="dashboard-backdrop" aria-label="Close controls" onClick={() => setMobilePanelOpen(false)} type="button" />}
           <section ref={contentRef} className="dashboard-workspace dashboard-workspace--video">
-            <WorkspaceToolbar mode="video" tab={workspaceTab} setTab={setWorkspaceTab} label={`${videoFlow === "edit" ? "Edit" : videoFlow === "motion" ? "Motion control" : "Create"} video`} />
-            {workspaceTab === "history" ? <HistoryPanel generated={generated} mode="video" /> : <VideoWorkspace flow={videoFlow} generated={generated} />}
+            <WorkspaceToolbar mode="video" tab={workspaceTab} setTab={setWorkspaceTab} label="Create video" />
+            {workspaceTab === "history" ? <HistoryPanel generated={generated} mode="video" /> : <VideoWorkspace generated={generated} />}
           </section>
         </div>
       ) : (
@@ -68,25 +67,24 @@ export function Dashboard() {
   );
 }
 
-type HeaderProps = { mode: CreationMode; onModeChange: (mode: CreationMode) => void; profileOpen: boolean; setProfileOpen: (open: boolean) => void; mobilePanelOpen: boolean; setMobilePanelOpen: (open: boolean) => void };
-function DashboardHeader({ mode, onModeChange, profileOpen, setProfileOpen, mobilePanelOpen, setMobilePanelOpen }: HeaderProps) {
+type HeaderProps = { mode: CreationMode; onModeChange: (mode: CreationMode) => void; profileOpen: boolean; setProfileOpen: (open: boolean) => void; mobilePanelOpen: boolean; setMobilePanelOpen: (open: boolean) => void; onOpenAssets: () => void };
+function DashboardHeader({ mode, onModeChange, profileOpen, setProfileOpen, mobilePanelOpen, setMobilePanelOpen, onOpenAssets }: HeaderProps) {
   return <header className="dashboard-header">
     <Link className="dashboard-brand" href="/" aria-label="8xMotion home"><Image src="/BLogo.png" alt="8xMotion" width={1774} height={887} priority /></Link>
     <nav className="dashboard-primary-nav" data-mode={mode} aria-label="Creation mode"><span className="dashboard-primary-nav__indicator" aria-hidden="true" /><button className={mode === "video" ? "is-active" : ""} onClick={() => onModeChange("video")} type="button"><FiVideo /><span>Video</span></button><button className={mode === "image" ? "is-active" : ""} onClick={() => onModeChange("image")} type="button"><FiImage /><span>Image</span></button></nav>
-    <div className="dashboard-account"><div className="credit-chip"><FiZap /><span>1,240 credits</span></div><button className="dashboard-icon-button" type="button" aria-label="Notifications"><FiBell /></button><div className="profile-menu"><button className="profile-trigger" type="button" aria-expanded={profileOpen} onClick={() => setProfileOpen(!profileOpen)}><span>AM</span><FiChevronDown /></button>{profileOpen && <div className="profile-dropdown"><div><strong>Alex Morgan</strong><span>alex@example.com</span></div><button type="button"><FiUser />Manage profile</button><button type="button"><FiSettings />Settings</button><Link href="/"><FiLogOut />Log out</Link></div>}</div>{mode === "video" && <button className="dashboard-mobile-toggle" type="button" onClick={() => setMobilePanelOpen(!mobilePanelOpen)} aria-label="Toggle controls">{mobilePanelOpen ? <FiX /> : <FiMenu />}</button>}</div>
+    <div className="dashboard-account"><button className="dashboard-assets-button" type="button" onClick={onOpenAssets}><FiFolder aria-hidden="true" /><span>Assets</span></button><button className="dashboard-icon-button" type="button" aria-label="Notifications"><FiBell aria-hidden="true" /></button><div className="profile-menu"><button className="profile-trigger" type="button" aria-expanded={profileOpen} onClick={() => setProfileOpen(!profileOpen)} aria-label="Open profile"><span>AM</span></button>{profileOpen && <div className="profile-dropdown profile-dropdown--account"><div className="profile-summary"><span className="profile-summary__avatar">AM</span><div><strong>Alex Morgan</strong><span>Free plan</span></div></div><div className="profile-credit-card"><div className="profile-credit-card__title"><span>Credits <FiHelpCircle /></span><button type="button">1,240 left <FiChevronRight /></button></div><div className="profile-credit-dots" aria-hidden="true">{Array.from({ length: 26 }, (_, index) => <i key={index} />)}</div><div className="profile-upgrade"><span><LuCrown />Go Premium</span><button type="button">Upgrade</button></div></div><div className="profile-actions"><button type="button"><FiUser />Manage profile</button><button type="button"><FiSettings />Settings</button><Link href="/"><FiLogOut />Log out</Link></div></div>}</div>{mode === "video" && <button className="dashboard-mobile-toggle" type="button" onClick={() => setMobilePanelOpen(!mobilePanelOpen)} aria-label="Toggle controls">{mobilePanelOpen ? <FiX /> : <FiMenu />}</button>}</div>
   </header>;
 }
 
-type VideoSidebarProps = { fileInputRef: React.RefObject<HTMLInputElement | null>; flow: VideoFlow; generating: boolean; onFile: (event: ChangeEvent<HTMLInputElement>) => void; onGenerate: () => void; onFlowChange: (flow: VideoFlow) => void; open: boolean; preview: string | null; prompt: string; setPrompt: (prompt: string) => void; setSourceMode: (mode: "references" | "extend") => void; sourceMode: "references" | "extend" };
-function VideoSidebar({ fileInputRef, flow, generating, onFile, onGenerate, onFlowChange, open, preview, prompt, setPrompt, setSourceMode, sourceMode }: VideoSidebarProps) {
+type VideoSidebarProps = { fileInputRef: React.RefObject<HTMLInputElement | null>; generating: boolean; onFile: (event: ChangeEvent<HTMLInputElement>) => void; onGenerate: () => void; open: boolean; preview: string | null; prompt: string; setPrompt: (prompt: string) => void; setSourceMode: (mode: "references" | "extend") => void; sourceMode: "references" | "extend" };
+function VideoSidebar({ fileInputRef, generating, onFile, onGenerate, open, preview, prompt, setPrompt, setSourceMode, sourceMode }: VideoSidebarProps) {
   return <aside className={`creation-sidebar premium-sidebar${open ? " is-open" : ""}`}>
     <div className="premium-sidebar__scroll">
-      <div className="premium-tabs"><button className={flow === "create" ? "is-active" : ""} onClick={() => onFlowChange("create")} type="button">Create Video</button><button className={flow === "edit" ? "is-active" : ""} onClick={() => onFlowChange("edit")} type="button">Edit Video</button><button className={flow === "motion" ? "is-active" : ""} onClick={() => onFlowChange("motion")} type="button">Motion Control</button></div>
-      <article className="model-preview-card"><video src={dashboardVideo} autoPlay muted loop playsInline preload="metadata" /><div className="model-preview-card__shade" /><button type="button"><FiEdit3 />Change</button><div><strong>{flow === "motion" ? "MOTION" : flow === "edit" ? "EDIT" : "GENERAL"}</strong><span>Seedance 2.5</span></div></article>
+      <article className="model-preview-card"><video src={dashboardVideo} autoPlay muted loop playsInline preload="metadata" /><div className="model-preview-card__shade" /><button type="button"><FiEdit3 />Change</button><div><strong>GENERAL</strong><span>Seedance 2.5</span></div></article>
       <div className="source-switch"><button className={sourceMode === "references" ? "is-active" : ""} onClick={() => setSourceMode("references")} type="button">References</button><button className={sourceMode === "extend" ? "is-active" : ""} onClick={() => setSourceMode("extend")} type="button">Extend Video</button></div>
-      <button className={`reference-drop${preview ? " has-preview" : ""}`} type="button" onClick={() => fileInputRef.current?.click()}>{preview ? (flow === "edit" || sourceMode === "extend" ? <video src={preview} muted /> : <Image src={preview} alt="Uploaded reference" fill unoptimized />) : <><div><span><FiImage /></span><span><FiVideo /></span><span><FiMusic /></span></div><strong>Add references</strong><small>{sourceMode === "extend" ? "Upload the video you want to extend" : "Image, Video or Audio"}</small></>}</button>
-      <input ref={fileInputRef} hidden type="file" accept={flow === "edit" || sourceMode === "extend" ? "video/*" : "image/*,video/*,audio/*"} onChange={onFile} />
-      <section className="premium-prompt"><label htmlFor="video-prompt">Prompt <span>{prompt.length}/500</span></label><textarea id="video-prompt" maxLength={500} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder={flow === "edit" ? "Describe the visual change you want — e.g., make it snow…" : "Describe the motion, camera, mood, and atmosphere…"} /><div><button type="button"><FiAtSign />Elements</button><button type="button"><FiVolume2 />On</button></div></section>
+      <button className={`reference-drop${preview ? " has-preview" : ""}`} type="button" onClick={() => fileInputRef.current?.click()}>{preview ? (sourceMode === "extend" ? <video src={preview} muted /> : <Image src={preview} alt="Uploaded reference" fill unoptimized />) : <><div><span><FiImage /></span><span><FiVideo /></span><span><FiMusic /></span></div><strong>Add references</strong><small>{sourceMode === "extend" ? "Upload the video you want to extend" : "Image, Video or Audio"}</small></>}</button>
+      <input ref={fileInputRef} hidden type="file" accept={sourceMode === "extend" ? "video/*" : "image/*"} onChange={onFile} />
+      <section className="premium-prompt"><label htmlFor="video-prompt">Prompt <span>{prompt.length}/500</span></label><textarea id="video-prompt" maxLength={500} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the motion, camera, mood, and atmosphere…" /><div><button type="button"><FiAtSign />Elements</button><button type="button"><FiVolume2 />On</button></div></section>
       <button className="model-selector" type="button"><span><small>Model</small><strong>Seedance 2.5 <i><b /><b /><b /></i></strong></span><FiChevronRight /></button>
       <div className="premium-settings"><button type="button"><FiClock /><span>5s</span></button><button type="button"><FiMaximize /><span>16:9</span></button><button type="button"><FiGrid /><span>1080p</span></button></div>
     </div>
@@ -95,16 +93,13 @@ function VideoSidebar({ fileInputRef, flow, generating, onFile, onGenerate, onFl
 }
 
 function WorkspaceToolbar({ mode, tab, setTab, label }: { mode: CreationMode; tab: "guide" | "history"; setTab: (tab: "guide" | "history") => void; label: string }) {
-  return <div className="workspace-toolbar"><div><button className={tab === "history" ? "is-active" : ""} onClick={() => setTab("history")} type="button"><FiFolder />History</button><button className={tab === "guide" ? "is-active" : ""} onClick={() => setTab("guide")} type="button"><FiHelpCircle />How it works</button></div><span>{mode === "image" ? "Image studio" : label}</span></div>;
+  return <div className="workspace-toolbar workspace-toolbar--stacked"><div><button className={tab === "history" ? "is-active" : ""} onClick={() => setTab("history")} type="button"><FiFolder />History</button><button className={tab === "guide" ? "is-active" : ""} onClick={() => setTab("guide")} type="button"><FiHelpCircle />How it works</button></div><small>{mode === "image" ? "Create image" : label}</small></div>;
 }
 
-function VideoWorkspace({ flow, generated }: { flow: VideoFlow; generated: boolean }) {
+function VideoWorkspace({ generated }: { generated: boolean }) {
   const createSteps = [{ image: "hero2.jpeg", title: "Add image", copy: "Upload or choose an image to begin your animation.", Icon: FiUpload }, { image: "hero5.jpeg", title: "Choose preset", copy: "Pick a motion style to guide camera and subject movement.", Icon: FiSliders }, { image: "hero7.jpeg", title: "Get video", copy: "Generate your final cinematic clip and download it.", Icon: FiPlay }];
-  const editSteps = [{ image: "hero4.jpeg", title: "Add video", copy: "Upload the clip you want to transform or extend.", Icon: FiVideo }, { image: "hero6.jpeg", title: "Describe edit", copy: "Explain the visual change, mood, or new environment.", Icon: FiEdit3 }, { image: "hero3.jpeg", title: "Export result", copy: "Review your transformed video and export in HD.", Icon: FiDownload }];
-  const motionSteps = [{ image: "hero1.jpeg", title: "Choose subject", copy: "Add a character or product as your motion subject.", Icon: FiUser }, { image: "hero3.jpeg", title: "Direct motion", copy: "Select camera movement and performance intensity.", Icon: FiSliders }, { image: "hero6.jpeg", title: "Render movement", copy: "Generate smooth, directed motion in one click.", Icon: FiPlay }];
-  const steps = flow === "create" ? createSteps : flow === "edit" ? editSteps : motionSteps;
   if (generated) return <GeneratedResult mode="video" />;
-  return <div className="workspace-guide"><div className="workspace-heading"><span>{flow === "create" ? "Image to video" : flow === "edit" ? "AI video editor" : "Motion director"}</span><h1>{flow === "create" ? "Make videos in one click" : flow === "edit" ? "Transform every frame" : "Control every movement"}</h1><p>{flow === "create" ? "Upload an image, choose a movement preset, and turn a still moment into a cinematic story." : flow === "edit" ? "Upload footage and describe the change—8xMotion handles the transformation." : "Direct characters, camera, and timing with purpose-built AI motion controls."}</p></div><div className="guide-steps guide-steps--arc">{steps.map(({ image, title, copy, Icon }, index) => <article key={title}><GuideVisual image={image} index={index} Icon={Icon} /><h2>{title}</h2><p>{copy}</p></article>)}</div></div>;
+  return <div className="workspace-guide"><div className="workspace-heading"><span>Image to video</span><h1>Make videos in one click</h1><p>Upload an image, choose a movement preset, and turn a still moment into a cinematic story.</p></div><div className="guide-steps guide-steps--arc">{createSteps.map(({ image, title, copy, Icon }, index) => <article key={title}><GuideVisual image={image} index={index} Icon={Icon} /><h2>{title}</h2><p>{copy}</p></article>)}</div></div>;
 }
 
 function GuideVisual({ image, index, Icon }: { image: string; index: number; Icon: React.ComponentType }) {
@@ -119,4 +114,14 @@ function ImageCreationCanvas({ count, generating, onGenerate, prompt, setCount, 
 }
 
 function GeneratedResult({ mode }: { mode: CreationMode }) { return <div className="generated-result"><div className="generated-result__media">{mode === "video" ? <video src={dashboardVideo} autoPlay muted loop playsInline /> : <Image src="/Female_model_posing_in_architecture_20260921034158.jpeg" alt="Generated AI result" fill sizes="70vw" />}</div><div><span><FiCheck />Generation complete</span><h1>Your {mode} is ready</h1><p>This frontend preview simulates the completed generation state.</p><button type="button"><FiDownload />Download</button></div></div>; }
-function HistoryPanel({ generated, mode }: { generated: boolean; mode: CreationMode }) { return <div className="history-panel"><div className="workspace-heading"><span>Your library</span><h1>Generation history</h1><p>Recent creations will appear here when backend persistence is connected.</p></div>{generated ? <GeneratedResult mode={mode} /> : <div className="history-empty"><FiClock /><h2>No generations yet</h2><p>Create your first {mode} to start building your history.</p></div>}</div>; }
+function HistoryPanel({ generated, mode }: { generated: boolean; mode: CreationMode }) {
+  const assets = [
+    { type: "image" as const, src: "/HeroImages/hero2.jpeg", title: "Neon portrait" },
+    { type: "video" as const, src: dashboardVideo, title: "Space explorer" },
+    { type: "image" as const, src: "/HeroImages/hero5.jpeg", title: "Editorial motion" },
+    { type: "image" as const, src: "/HeroImages/hero7.jpeg", title: "Night campaign" },
+    { type: "video" as const, src: "/Circular_Slider/Woman_walking_on_skyscraper_rooftop_20260921005546.mp4", title: "Rooftop film" },
+    { type: "image" as const, src: "/HeroImages/hero1.jpeg", title: "Cinematic world" },
+  ];
+  return <div className="history-panel asset-library"><div className="asset-library__heading"><div><span>Your library</span><h1>Assets</h1><p>Images and videos created in your 8xMotion workspace.</p></div><span>{assets.length + (generated ? 1 : 0)} creations</span></div><div className="asset-grid">{assets.map((asset) => <article key={asset.title}><div>{asset.type === "video" ? <video src={asset.src} muted loop playsInline onMouseEnter={(event) => void event.currentTarget.play()} onMouseLeave={(event) => { event.currentTarget.pause(); event.currentTarget.currentTime = 0; }} /> : <Image src={asset.src} alt={asset.title} fill sizes="(max-width: 700px) 50vw, 24vw" />}<span>{asset.type === "video" ? <FiVideo /> : <FiImage />}{asset.type}</span></div><h2>{asset.title}</h2><p>{mode === "video" ? "Generated video project" : "Generated image project"}</p></article>)}</div></div>;
+}
