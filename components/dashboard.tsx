@@ -76,6 +76,18 @@ function DashboardHeader({ mode, onModeChange, profileOpen, setProfileOpen, mobi
 
 type VideoSidebarProps = { fileInputRef: React.RefObject<HTMLInputElement | null>; generating: boolean; onFile: (event: ChangeEvent<HTMLInputElement>) => void; onGenerate: () => void; open: boolean; preview: string | null; prompt: string; setPrompt: (prompt: string) => void; setSourceMode: (mode: "references" | "extend") => void; sourceMode: "references" | "extend" };
 function VideoSidebar({ fileInputRef, generating, onFile, onGenerate, open, preview, prompt, setPrompt, setSourceMode, sourceMode }: VideoSidebarProps) {
+  const [openFilter, setOpenFilter] = useState<"model" | "duration" | "ratio" | "quality" | null>(null);
+  const [model, setModel] = useState("Seedance 2.5");
+  const [duration, setDuration] = useState(12);
+  const [ratio, setRatio] = useState("16:9");
+  const [quality, setQuality] = useState("1080p");
+  const models = [
+    { name: "Seedance 2.5", meta: "1080p · 4s–30s" },
+    { name: "8xMotion Genjutsu", meta: "1080p · 4s–30s" },
+    { name: "Seedance 2.5 Edit", meta: "480p–720p · Edit video" },
+    { name: "Seedance 2.0", meta: "4K · 4s–15s" },
+    { name: "Seedance 2.0 Fast", meta: "720p · 4s–15s" },
+  ];
   return <aside className={`creation-sidebar premium-sidebar${open ? " is-open" : ""}`}>
     <div className="premium-sidebar__scroll">
       <article className="model-preview-card"><video src={dashboardVideo} autoPlay muted loop playsInline preload="metadata" /><div className="model-preview-card__shade" /><div><strong>GENERAL</strong><span>Seedance 2.5</span></div></article>
@@ -83,8 +95,15 @@ function VideoSidebar({ fileInputRef, generating, onFile, onGenerate, open, prev
       <button className={`reference-drop${preview ? " has-preview" : ""}`} type="button" onClick={() => fileInputRef.current?.click()}>{preview ? (sourceMode === "extend" ? <video src={preview} muted /> : <Image src={preview} alt="Uploaded reference" fill unoptimized />) : <><div><span><FiImage /></span><span><FiVideo /></span><span><FiMusic /></span></div><strong>Add references</strong><small>{sourceMode === "extend" ? "Upload the video you want to extend" : "Image, Video or Audio"}</small></>}</button>
       <input ref={fileInputRef} hidden type="file" accept={sourceMode === "extend" ? "video/*" : "image/*"} onChange={onFile} />
       <section className="premium-prompt"><label htmlFor="video-prompt">Prompt <span>{prompt.length}/500</span></label><textarea id="video-prompt" maxLength={500} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the motion, camera, mood, and atmosphere…" /><div><button type="button"><FiAtSign />Elements</button><button type="button"><FiVolume2 />On</button></div></section>
-      <button className="model-selector" type="button"><span><small>Model</small><strong>Seedance 2.5 <i><b /><b /><b /></i></strong></span><FiChevronRight /></button>
-      <div className="premium-settings"><button type="button"><FiClock /><span>5s</span></button><button type="button"><FiMaximize /><span>16:9</span></button><button type="button"><FiGrid /><span>1080p</span></button></div>
+      <div className="video-filter-wrap">
+        <button className="model-selector" type="button" onClick={() => setOpenFilter(openFilter === "model" ? null : "model")}><span><small>Model</small><strong>{model} <i><b /><b /><b /></i></strong></span><FiChevronRight /></button>
+        {openFilter === "model" && <div className="video-model-menu"><label><FiSliders /><input autoFocus placeholder="Search models…" /></label><small>Featured models</small>{models.map((item) => <button className={model === item.name ? "is-active" : ""} key={item.name} type="button" onClick={() => { setModel(item.name); setOpenFilter(null); }}><span className="video-model-menu__icon"><FiVideo /></span><span><strong>{item.name}</strong><small>{item.meta}</small></span>{model === item.name && <FiCheck />}</button>)}</div>}
+      </div>
+      <div className="premium-settings">
+        <div className="video-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "duration" ? null : "duration")}><FiClock /><span>{duration}s</span></button>{openFilter === "duration" && <div className="video-filter-menu video-duration-menu"><strong>Choose duration</strong><output>{duration}s</output><input aria-label="Video duration" type="range" min="4" max="30" value={duration} onChange={(event) => setDuration(Number(event.target.value))} /></div>}</div>
+        <div className="video-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "ratio" ? null : "ratio")}><FiMaximize /><span>{ratio}</span></button>{openFilter === "ratio" && <div className="video-filter-menu">{["21:9", "16:9", "4:3", "1:1", "3:4", "9:16"].map((item) => <button className={ratio === item ? "is-active" : ""} key={item} type="button" onClick={() => { setRatio(item); setOpenFilter(null); }}><span>{item}</span>{ratio === item && <FiCheck />}</button>)}</div>}</div>
+        <div className="video-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "quality" ? null : "quality")}><FiGrid /><span>{quality}</span></button>{openFilter === "quality" && <div className="video-filter-menu">{["480p", "720p", "1080p"].map((item) => <button className={quality === item ? "is-active" : ""} key={item} type="button" onClick={() => { setQuality(item); setOpenFilter(null); }}><span>{item}</span>{quality === item && <FiCheck />}</button>)}</div>}</div>
+      </div>
     </div>
     <button className="premium-generate" type="button" disabled={generating} onClick={onGenerate}>{generating ? <><span className="generate-spinner" />Generating…</> : <>Generate <FiZap /><del>80</del><strong>60</strong></>}</button>
   </aside>;
