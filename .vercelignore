@@ -1,0 +1,5 @@
+backend/
+supabase/.branches/
+supabase/.temp/
+*.md
+.agent-logs/

@@ -1,0 +1,8 @@
+project_id = "8xmotion"
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/dashboard"]
+
+[storage]
+file_size_limit = "50MiB"

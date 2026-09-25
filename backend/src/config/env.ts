@@ -7,6 +7,7 @@ export const envSchema = z.object({
   PORT: z.coerce.number().int().positive().default(4000),
   API_PREFIX: z.string().default('api/v1'),
   FRONTEND_URL: z.string().url().default('http://localhost:3000'),
+  CORS_ORIGINS: z.string().optional(),
   DATABASE_URL: z.string().min(1),
   REDIS_URL: z.string().min(1),
   JWT_ACCESS_SECRET: z.string().min(32),
@@ -31,6 +32,7 @@ export const envSchema = z.object({
   GENERATION_PROVIDER: z.enum(['mock', 'vertex']).default('mock'),
   GOOGLE_CLOUD_PROJECT: z.string().default(''),
   GOOGLE_CLOUD_LOCATION: z.string().default('us-central1'),
+  GOOGLE_APPLICATION_CREDENTIALS_JSON: z.string().optional(),
   MOCK_CHECKOUT_ENABLED: bool.default(true),
   SWAGGER_ENABLED: bool.default(true),
 });

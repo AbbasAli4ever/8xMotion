@@ -2,10 +2,8 @@
 
 import Image from "next/image";
 import { useLayoutEffect, useRef } from "react";
-import { FiArrowUpRight } from "react-icons/fi";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
 
 type MediaCardConfig = {
   src: string;
@@ -75,7 +73,7 @@ const mediaCards: MediaCardConfig[] = [
   },
 ];
 
-export function Hero() {
+export function CinematicShowcase() {
   const rootRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLDivElement>(null);
@@ -106,7 +104,7 @@ export function Hero() {
           reduce: "(prefers-reduced-motion: reduce)",
         },
         (matchContext) => {
-          const { desktop, tablet, mobile, reduce } = matchContext.conditions as Record<
+          const { desktop, mobile, reduce } = matchContext.conditions as Record<
             string,
             boolean
           >;
@@ -123,10 +121,10 @@ export function Hero() {
           gsap.set(hiddenCards, { display: "none" });
           gsap.set(content, { autoAlpha: 1, y: 0, filter: "blur(0px)" });
           gsap.set(visibleCards, {
-            autoAlpha: 0,
-            scale: 0.68,
-            x: (index) => mediaCards[index].entryX,
-            y: (index) => mediaCards[index].entryY,
+            autoAlpha: 1,
+            scale: 1,
+            x: 0,
+            y: 0,
           });
 
           const timeline = gsap.timeline({
@@ -134,10 +132,8 @@ export function Hero() {
             scrollTrigger: {
               trigger: root,
               start: "top top",
-              end: mobile ? "+=150%" : tablet ? "+=210%" : "+=260%",
-              scrub: 1,
-              pin: stage,
-              anticipatePin: 1,
+              end: "bottom bottom",
+              scrub: 2.1,
               invalidateOnRefresh: true,
               onUpdate: (self) => {
                 parallaxActive = self.progress > 0.53;
@@ -149,27 +145,37 @@ export function Hero() {
             .to(
               video,
               {
-                width: mobile ? "68vw" : tablet ? "44vw" : "30vw",
-                height: mobile ? "19svh" : tablet ? "23svh" : "24svh",
-                top: mobile ? "21%" : "22%",
-                borderRadius: mobile ? 22 : 30,
-                duration: 1.35,
+                width: "100%",
+                height: "100%",
+                top: "50%",
+                borderRadius: 0,
+                duration: 1.75,
                 ease: "power2.inOut",
               },
-              0.12,
+              0.32,
             )
-            .to(".video-shade", { opacity: 0.12, duration: 0.8 }, 0.18)
+            .to(".video-shade", { opacity: 1, duration: 0.8 }, 0.38)
             .to(
               visibleCards,
               {
-                autoAlpha: 1,
-                scale: 1,
-                x: 0,
-                y: 0,
+                autoAlpha: 0,
+                scale: 0.68,
+                x: (index) => mediaCards[index].entryX,
+                y: (index) => mediaCards[index].entryY,
                 duration: 0.72,
                 stagger: 0.055,
               },
-              0.72,
+              0.42,
+            )
+            .to(
+              content,
+              {
+                autoAlpha: 0,
+                y: 54,
+                filter: "blur(14px)",
+                duration: 0.62,
+              },
+              0.48,
             );
 
           if (desktop && window.matchMedia("(pointer: fine)").matches) {
@@ -213,7 +219,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section ref={rootRef} className="hero-scroll" aria-labelledby="hero-title">
+    <section ref={rootRef} className="hero-scroll" aria-labelledby="showcase-title">
       <div ref={stageRef} className="hero-stage">
         <div ref={videoRef} className="hero-video">
           <video autoPlay muted loop playsInline preload="metadata" aria-label="8xMotion showreel">
@@ -239,17 +245,9 @@ export function Hero() {
 
         <div ref={contentRef} className="hero-content">
           <p className="hero-content__eyebrow">AI-powered creative studio</p>
-          <h1 id="hero-title">
-            WHERE IDEAS BECOME <span>VISUAL STORIES</span>
+          <h1 id="showcase-title">
+            CREATE BEYOND <span>THE FRAME</span>
           </h1>
-          <p className="hero-content__copy">
-            Create cinematic visuals, characters, and worlds with AI—built for ideas
-            that deserve to move.
-          </p>
-          <HoverBorderGradient containerClassName="hero-content__cta">
-            <span>Start Creating</span>
-            <FiArrowUpRight aria-hidden="true" />
-          </HoverBorderGradient>
         </div>
 
         <div className="scroll-cue" aria-hidden="true">

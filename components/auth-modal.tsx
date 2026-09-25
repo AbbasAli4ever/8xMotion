@@ -2,10 +2,10 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { ClipboardEvent, FormEvent, KeyboardEvent, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { FiArrowLeft, FiEye, FiEyeOff, FiMail, FiX } from "react-icons/fi";
 import gsap from "gsap";
-import { API_URL, ApiError, setAccessToken } from "@/lib/api";
+import { supabase } from "@/lib/supabase";
 
 type AuthMode = "login" | "signup";
 type AuthStep = "choices" | "email" | "otp";
@@ -53,7 +53,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const [activeMedia, setActiveMedia] = useState(0);
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", "", "", "", "", ""]);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState("");
 
@@ -119,7 +119,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const changeMode = (nextMode: AuthMode) => {
     setMode(nextMode);
     setStep("choices");
-    setOtp(["", "", "", "", "", ""]);
+    setOtp(["", "", "", "", "", "", "", ""]);
   };
 
   const completeAuth = () => {
@@ -133,11 +133,16 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
     const form = new FormData(event.currentTarget);
     const body = Object.fromEntries(form.entries());
     try {
-      const response = await fetch(`${API_URL}/auth/${mode === "signup" ? "signup" : "login"}`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-      const result = await response.json();
-      if (!response.ok) throw new ApiError(response.status, result);
-      if (mode === "signup") setStep("otp");
-      else { setAccessToken(result.accessToken); completeAuth(); }
+      if (mode === "signup") {
+        if (body.password !== body.confirmPassword) throw new Error("Passwords do not match");
+        const { data, error: authError } = await supabase.auth.signUp({ email: String(body.email), password: String(body.password), options: { data: { first_name: body.firstName, last_name: body.lastName } } });
+        if (authError) throw authError;
+        if (data.session) completeAuth(); else setStep("otp");
+      } else {
+        const { error: authError } = await supabase.auth.signInWithPassword({ email: String(body.email), password: String(body.password) });
+        if (authError) throw authError;
+        completeAuth();
+      }
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Authentication failed"); }
     finally { setPending(false); }
   };
@@ -145,16 +150,16 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
   const verifyEmail = async () => {
     setPending(true); setError("");
     try {
-      const response = await fetch(`${API_URL}/auth/verify-email`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, code: otp.join("") }) });
-      const result = await response.json(); if (!response.ok) throw new ApiError(response.status, result);
-      setAccessToken(result.accessToken); completeAuth();
+      const { error: authError } = await supabase.auth.verifyOtp({ email, token: otp.join(""), type: "signup" });
+      if (authError) throw authError;
+      completeAuth();
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Verification failed"); }
     finally { setPending(false); }
   };
 
   const resend = async () => {
     setPending(true); setError("");
-    try { const response = await fetch(`${API_URL}/auth/resend-verification`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); const result = await response.json(); if (!response.ok) throw new ApiError(response.status, result); }
+    try { const { error: authError } = await supabase.auth.resend({ type: "signup", email }); if (authError) throw authError; }
     catch (caught) { setError(caught instanceof Error ? caught.message : "Unable to resend code"); }
     finally { setPending(false); }
   };
@@ -167,6 +172,24 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
 
   const handleOtpKey = (event: KeyboardEvent<HTMLInputElement>, index: number) => {
     if (event.key === "Backspace" && !otp[index] && index > 0) otpRefs.current[index - 1]?.focus();
+  };
+
+  const handleOtpPaste = (event: ClipboardEvent<HTMLInputElement>, startIndex: number) => {
+    const digits = event.clipboardData.getData("text").replace(/\D/g, "").slice(0, otp.length - startIndex);
+    if (!digits) return;
+    event.preventDefault();
+    setOtp((current) => {
+      const next = [...current];
+      digits.split("").forEach((digit, offset) => { next[startIndex + offset] = digit; });
+      return next;
+    });
+    otpRefs.current[Math.min(startIndex + digits.length, otp.length - 1)]?.focus();
+  };
+
+  const continueWithGoogle = async () => {
+    setPending(true); setError("");
+    const { error: authError } = await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: `${window.location.origin}/dashboard` } });
+    if (authError) { setError(authError.message); setPending(false); }
   };
 
   return (
@@ -220,7 +243,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <div className="auth-step auth-view auth-step--otp" key="otp">
               <span className="auth-kicker">Verify your email</span>
               <h2 id="auth-title">Enter your code</h2>
-              <p>We sent a six-digit verification code to <strong>{email || "your email"}</strong>.</p>
+              <p>We sent an eight-digit verification code to <strong>{email || "your email"}</strong>.</p>
               <div className="otp-fields">
                 {otp.map((digit, index) => (
                   <input
@@ -231,6 +254,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                     maxLength={1}
                     onChange={(event) => updateOtp(index, event.target.value)}
                     onKeyDown={(event) => handleOtpKey(event, index)}
+                    onPaste={(event) => handleOtpPaste(event, index)}
                     ref={(node) => { otpRefs.current[index] = node; }}
                     value={digit}
                   />
@@ -253,10 +277,10 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
                 <h2 id="auth-title">{mode === "login" ? "Welcome back" : "Create without limits"}</h2>
                 <p>{mode === "login" ? "Continue where your ideas left off." : "Join 8xMotion and bring your next visual story to life."}</p>
 
-                <a className="auth-google" href={`${API_URL}/auth/google`}>
+                <button className="auth-google" type="button" disabled={pending} onClick={() => void continueWithGoogle()}>
                   <Image src="/google.svg" alt="" width={22} height={22} />
                   {mode === "login" ? "Continue with Google" : "Sign up with Google"}
-                </a>
+                </button>
 
                 <div className="auth-divider"><span>or</span></div>
 
@@ -271,7 +295,7 @@ export function AuthModal({ open, onClose }: AuthModalProps) {
             <div className="auth-step auth-view auth-step--email" key={`${mode}-email`}>
               <span className="auth-kicker">{mode === "login" ? "Continue with email" : "Create your account"}</span>
               <h2 id="auth-title">{mode === "login" ? "Log in with email" : "Tell us about you"}</h2>
-              <p>{mode === "login" ? "Enter your email and password to continue." : "Add your details, then verify your email with a six-digit code."}</p>
+              <p>{mode === "login" ? "Enter your email and password to continue." : "Add your details, then verify your email with an eight-digit code."}</p>
               <form className="auth-form" onSubmit={submitEmail}>
                 {error && <p role="alert">{error}</p>}
                 {mode === "signup" && (

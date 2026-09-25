@@ -1,20 +1,20 @@
 import { CircularVideoSlider } from "@/components/circular-video-slider";
 import { FinalCta } from "@/components/final-cta";
 import { Footer } from "@/components/footer";
-import { Hero } from "@/components/hero";
+import { CinematicShowcase } from "@/components/hero";
+import { LandingHero } from "@/components/landing-hero";
 import { Navbar } from "@/components/navbar";
 import { PartnerMarquee } from "@/components/partner-marquee";
-import { PhoneShowcase } from "@/components/phone-showcase";
 import { PricingSection } from "@/components/pricing-section";
 
 export default function Home() {
   return (
     <main>
       <Navbar />
-      <Hero />
+      <LandingHero />
       <PartnerMarquee />
       <CircularVideoSlider />
-      <PhoneShowcase />
+      <CinematicShowcase />
       <PricingSection />
       <FinalCta />
       <Footer />

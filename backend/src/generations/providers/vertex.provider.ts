@@ -7,8 +7,15 @@ import { GenerationProvider, ProviderOutput, ProviderRequest } from './generatio
 
 @Injectable()
 export class VertexGenerationProvider implements GenerationProvider {
-  private readonly auth = new GoogleAuth({ scopes: ['https://www.googleapis.com/auth/cloud-platform'] });
-  constructor(private readonly config: ConfigService<AppEnv, true>) {}
+  private readonly auth: GoogleAuth;
+  constructor(private readonly config: ConfigService<AppEnv, true>) {
+    const credentialsJson = config.get('GOOGLE_APPLICATION_CREDENTIALS_JSON', { infer: true });
+    this.auth = new GoogleAuth({
+      scopes: ['https://www.googleapis.com/auth/cloud-platform'],
+      projectId: config.get('GOOGLE_CLOUD_PROJECT', { infer: true }),
+      ...(credentialsJson ? { credentials: JSON.parse(credentialsJson) as Record<string, string> } : {}),
+    });
+  }
   private base() { return `https://${this.config.get('GOOGLE_CLOUD_LOCATION', { infer: true })}-aiplatform.googleapis.com/v1/projects/${this.config.get('GOOGLE_CLOUD_PROJECT', { infer: true })}/locations/${this.config.get('GOOGLE_CLOUD_LOCATION', { infer: true })}/publishers/google/models`; }
   private async post(url: string, body: unknown) {
     const client = await this.auth.getClient();

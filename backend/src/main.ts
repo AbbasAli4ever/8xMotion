@@ -13,6 +13,7 @@ import { AppEnv } from './config/env';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { logger: ['error', 'warn', 'log'] });
   const config = app.get<ConfigService<AppEnv, true>>(ConfigService);
+  app.getHttpAdapter().getInstance().set('trust proxy', 1);
   app.setGlobalPrefix(config.get('API_PREFIX', { infer: true }));
   app.use(helmet());
   app.use(cookieParser());
@@ -21,7 +22,17 @@ async function bootstrap() {
     response.setHeader('x-request-id', request.id);
     next();
   });
-  app.enableCors({ origin: config.get('FRONTEND_URL', { infer: true }), credentials: true });
+  const allowedOrigins = (config.get('CORS_ORIGINS', { infer: true }) ?? config.get('FRONTEND_URL', { infer: true }))
+    .split(',')
+    .map((origin) => origin.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+  app.enableCors({
+    origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
+      if (!origin || allowedOrigins.includes(origin.replace(/\/$/, ''))) return callback(null, true);
+      return callback(new Error('Origin is not allowed by CORS'), false);
+    },
+    credentials: true,
+  });
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true }));
   app.useGlobalFilters(new ApiExceptionFilter());
 

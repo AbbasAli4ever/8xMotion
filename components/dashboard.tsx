@@ -229,7 +229,7 @@ function VideoSidebar({ capabilities, fileInputRef, generating, onFiles, onGener
   const [model, setModel] = useState("veo-3-1-fast");
   const [duration, setDuration] = useState(4);
   const [ratio, setRatio] = useState("16:9");
-  const [quality, setQuality] = useState("1080p");
+  const [quality, setQuality] = useState("480p");
   const models = capabilities.filter((item) => item.mediaType === "VIDEO");
   const selectedModel = models.find((item) => item.slug === model);
   const durations = selectedModel?.capabilities.durations ?? [4, 6, 8];
@@ -266,7 +266,7 @@ function VideoSidebar({ capabilities, fileInputRef, generating, onFiles, onGener
       <input ref={fileInputRef} hidden multiple type="file" accept={sourceMode === "extend" ? "video/*" : "image/*,video/*,audio/*"} onChange={onFiles} />
       <section className="premium-prompt"><label htmlFor="video-prompt">Prompt <span>{prompt.length}/500</span></label><textarea id="video-prompt" maxLength={500} value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the motion, camera, mood, and atmosphere…" /><div><button type="button"><FiAtSign />Elements</button><button type="button"><FiVolume2 />On</button></div></section>
       <div className="video-filter-wrap">
-        <button ref={modelButtonRef} className="model-selector" type="button" onClick={toggleModelMenu}><span><small>Model</small><strong>{models.find((item) => item.slug === model)?.displayName ?? "Veo 3.1 Fast"} <i><b /><b /><b /></i></strong></span><FiChevronRight /></button>
+        <button ref={modelButtonRef} className="model-selector" type="button" onClick={toggleModelMenu}><span><small>Model</small><strong>{models.find((item) => item.slug === model)?.displayName ?? "LTX 2.5"} <i><b /><b /><b /></i></strong></span><FiChevronRight /></button>
         {openFilter === "model" && typeof document !== "undefined" ? createPortal(modelMenu, document.body) : null}
       </div>
       <div className="premium-settings">
@@ -298,7 +298,7 @@ function ImageCreationCanvas({ capabilities, count, generating, onFiles, onGener
   const [model, setModel] = useState("imagen-4-fast");
   const [ratio, setRatio] = useState("16:9");
   const [quality, setQuality] = useState("High");
-  const [resolution, setResolution] = useState("2K");
+  const [resolution, setResolution] = useState("1K");
   const models = capabilities.filter((item) => item.mediaType === "IMAGE");
   const selectedModel = models.find((item) => item.slug === model);
   const ratios = selectedModel?.capabilities.aspectRatios ?? ["16:9", "9:16"];
@@ -316,7 +316,7 @@ function ImageCreationCanvas({ capabilities, count, generating, onFiles, onGener
     return () => document.removeEventListener("pointerdown", dismiss);
   }, [openFilter]);
   return <div className="image-creation-canvas"><div className="image-creation-hero"><AnimatedImageArc /><h1>Start creating with<br /><span>8xMotion Soul Cinema</span></h1><p>Describe a scene, character, mood, or style — and watch it come to life.</p></div><div className="image-composer">{references.length > 0 && <div className="image-composer__references">{references.map((asset) => <ReferenceChip asset={asset} key={asset.id} onRemove={onRemoveReference} />)}</div>}<div className="image-composer__input"><button className="image-reference-add" type="button" aria-label="Add reference images" onClick={() => imageReferenceInputRef.current?.click()}><FiPlus /></button><input ref={imageReferenceInputRef} hidden multiple type="file" accept="image/*" onChange={onFiles} /><textarea value={prompt} onChange={(event) => setPrompt(event.target.value)} placeholder="Describe the scene you imagine" rows={1} /></div><div className="image-composer__bottom"><div className="image-composer__options">
-    <div className="image-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "model" ? null : "model")}><FiCpu />{selectedModel?.displayName ?? "Imagen 4 Fast"}<FiChevronRight /></button>{openFilter === "model" && <div className="image-model-menu"><small>Available models</small>{models.map((item) => <button className={model === item.slug ? "is-active" : ""} key={item.slug} type="button" onClick={() => { setModel(item.slug); setOpenFilter(null); }}><span><FiCpu /></span><span><strong>{item.displayName}</strong><small>Available now</small></span>{model === item.slug && <FiCheck />}</button>)}{imageComingSoon.map(({ name, Icon }) => <button className="is-coming-soon" disabled key={name} type="button"><span><Icon /></span><span><strong>{name} <em>Coming soon</em></strong><small>Model integration in progress</small></span></button>)}</div>}</div>
+    <div className="image-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "model" ? null : "model")}><FiCpu />{selectedModel?.displayName ?? "Flux Schnell"}<FiChevronRight /></button>{openFilter === "model" && <div className="image-model-menu"><small>Available models</small>{models.map((item) => <button className={model === item.slug ? "is-active" : ""} key={item.slug} type="button" onClick={() => { setModel(item.slug); setOpenFilter(null); }}><span><FiCpu /></span><span><strong>{item.displayName}</strong><small>Available now</small></span>{model === item.slug && <FiCheck />}</button>)}{imageComingSoon.map(({ name, Icon }) => <button className="is-coming-soon" disabled key={name} type="button"><span><Icon /></span><span><strong>{name} <em>Coming soon</em></strong><small>Model integration in progress</small></span></button>)}</div>}</div>
     <div className="image-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "ratio" ? null : "ratio")}><FiMaximize />{ratio}</button>{openFilter === "ratio" && <ImageOptionMenu title="Aspect ratio" value={ratio} options={ratios} onSelect={(value) => { setRatio(value); setOpenFilter(null); }} />}</div>
     <div className="image-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "quality" ? null : "quality")}><FiStar />{quality}</button>{openFilter === "quality" && <ImageOptionMenu title="Select quality" value={quality} options={qualities} descriptions={{ Low: "Fastest and cheapest", Medium: "Balanced visuals", High: "Best visual fidelity" }} onSelect={(value) => { setQuality(value); setOpenFilter(null); }} />}</div>
     <div className="image-filter-wrap"><button type="button" onClick={() => setOpenFilter(openFilter === "resolution" ? null : "resolution")}><FiMonitor />{resolution}</button>{openFilter === "resolution" && <ImageOptionMenu title="Select resolution" value={resolution} options={resolutions} descriptions={{ "1K": "1024px", "2K": "2048px" }} onSelect={(value) => { setResolution(value); setOpenFilter(null); }} />}</div>

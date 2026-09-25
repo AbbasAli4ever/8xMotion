@@ -1,36 +1,63 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 8xMotion
 
-## Getting Started
+Next.js frontend with a Supabase backend. Supabase provides authentication, PostgreSQL, Row Level Security, Storage, subscriptions, credits, generation records, and asset history. The former NestJS backend is retained temporarily under `backend/` only as migration reference and is not deployed or called by the application.
 
-First, run the development server:
+## Supabase setup
+
+1. Create a Supabase project.
+2. Install the Supabase CLI and link the repository:
+
+   ```bash
+   supabase login
+   supabase link --project-ref YOUR_PROJECT_REF
+   supabase db push
+   ```
+
+3. In Authentication settings:
+   - Enable Email/Password and Google.
+   - Set the Site URL to the production Vercel URL.
+   - Add local and production `/dashboard` URLs to Redirect URLs.
+   - To use the OTP signup screen, change the confirmation email template to contain `{{ .Token }}`. This project currently uses Supabase's configured eight-digit OTP length.
+4. Copy `.env.example` to `.env.local` and add the project URL and publishable key.
+
+The migration at `supabase/migrations/20260926000000_initial.sql` creates and seeds all application tables, database functions, RLS policies, and the private `references` Storage bucket.
+
+## Magic Hour generation
+
+Image and video generation run through the `generations` Supabase Edge Function. Add
+`MAGIC_HOUR_API_KEY` in Supabase Dashboard under Edge Functions > Secrets, then deploy
+the database migration and function:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+supabase db push
+supabase functions deploy generations
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The function uses Flux Schnell for images and LTX 2.5 at 480p for videos so it works
+with Magic Hour's free tier. Generated files are copied into the private
+`generated-assets` bucket and returned to authenticated owners with signed URLs.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Local frontend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm ci
+npm run dev
+```
 
-## Learn More
+## Vercel deployment
 
-To learn more about Next.js, take a look at the following resources:
+Import the repository into Vercel with the root directory set to `.`. Add these variables to Production and Preview:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```text
+NEXT_PUBLIC_SUPABASE_URL=https://YOUR_PROJECT_REF.supabase.co
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=YOUR_SUPABASE_PUBLISHABLE_KEY
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The publishable key is safe to expose in the frontend because authorization is enforced by PostgreSQL RLS. Never expose a Supabase secret/service-role key in a `NEXT_PUBLIC_` variable.
 
-## Deploy on Vercel
+## Backend extension points
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Add tables, policies, triggers, and RPC functions as new timestamped files under `supabase/migrations/`.
+- Use Supabase Edge Functions for third-party secrets, payment webhooks, or real AI-provider calls.
+- Keep user-owned data protected with `auth.uid()` RLS policies.
+- Keep privileged authorization data in `app_metadata`, not editable user metadata.
